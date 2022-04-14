@@ -206,7 +206,7 @@ public class DatTruocUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblKetThuc1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKetThuc1MouseClicked
-        // TODO add your handling code here:
+        
         this.dispose();
     }//GEN-LAST:event_lblKetThuc1MouseClicked
 
@@ -221,11 +221,7 @@ public class DatTruocUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_CapNhatActionPerformed
 
     private void tbl_DatTruocMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_DatTruocMouseReleased
-        if (evt.getButton() == MouseEvent.BUTTON3) {
-            if (evt.isPopupTrigger() && tbl_DatTruoc.getSelectedRowCount() != 0) {
-                jPopupMenu1.show(evt.getComponent(), evt.getX(), evt.getY());
-            }
-        }
+        
     }//GEN-LAST:event_tbl_DatTruocMouseReleased
 
     private void tbl_DatTruocMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_DatTruocMousePressed
@@ -233,15 +229,7 @@ public class DatTruocUI extends javax.swing.JFrame {
     }//GEN-LAST:event_tbl_DatTruocMousePressed
 
     private void trangThaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trangThaiActionPerformed
-        String trangThai = tbl_DatTruoc.getValueAt(index, 9).toString();
-        if (trangThai.equalsIgnoreCase("đã nhận phòng")) {
-            return;
-        }
-        dao.updateStatus(getValueDatTruoc());
-        tpDao.insert(getValueThuePhong());
-        hdDao.insert(getValueHoaDon());
-        pdao.updateTrangThaiPhong(getValuePhong());
-        fillToTable();
+       
        
     }//GEN-LAST:event_trangThaiActionPerformed
     public ThuePhong getValueThuePhong() {
@@ -297,6 +285,18 @@ public class DatTruocUI extends javax.swing.JFrame {
         return hd;
 
     }
+    
+    public void datTruoc(){
+         String trangThai = tbl_DatTruoc.getValueAt(index, 9).toString();
+        if (trangThai.equalsIgnoreCase("đã nhận phòng")) {
+            return;
+        }
+        dao.updateStatus(getValueDatTruoc());
+        tpDao.insert(getValueThuePhong());
+        hdDao.insert(getValueHoaDon());
+        pdao.updateTrangThaiPhong(getValuePhong());
+        fillToTable();
+    }
 
     /**
      * @param args the command line arguments
@@ -339,7 +339,7 @@ public class DatTruocUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.k33ptoo.components.KButton btn_CapNhat;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPopupMenu jPopupMenu1;
+    public javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator2;
     private com.k33ptoo.components.KGradientPanel kGradientPanel1;

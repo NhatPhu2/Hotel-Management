@@ -65,7 +65,6 @@ public class MainForm extends javax.swing.JFrame {
         getContentPane().setBackground(Color.white);
         PanelExit.setBackground(new Color(51, 0, 51));
         lblNameNV.setText(Auth.user.getHoTen());
-
     }
 
     public void action() {
@@ -91,6 +90,7 @@ public class MainForm extends javax.swing.JFrame {
 
                                 } else {
                                     t.add();
+                                     fillDatTruoc();
                                     refresh();
                                     MsgBox.alert(t, "Thêm thành công");
                                     t.dispose();
@@ -120,6 +120,7 @@ public class MainForm extends javax.swing.JFrame {
                                     return;
                                 }
                                 t.traPhong();
+                               
                                 refresh();
                                 t.dispose();
                             }
@@ -139,7 +140,26 @@ public class MainForm extends javax.swing.JFrame {
                                 break;
                             }
                         }
-                       
+                        dt.tbl_DatTruoc.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseReleased(MouseEvent e) {
+                                if (e.getButton() == MouseEvent.BUTTON3) {
+                                    if (e.isPopupTrigger() && dt.tbl_DatTruoc.getSelectedRowCount() != 0) {
+                                        dt.jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
+                                    }
+                                }
+                            }
+                        });
+                        
+                        dt.trangThai.addActionListener(new ActionListener(){
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                dt.datTruoc();
+                                refresh();
+                                dt.dispose();
+                            }
+                            
+                        });
 
                         dt.setVisible(true);
                     } else {
@@ -223,7 +243,7 @@ public class MainForm extends javax.swing.JFrame {
                     break;
                 }
             }
-            
+
         }
     }
 
