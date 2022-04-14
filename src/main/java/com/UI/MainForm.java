@@ -51,7 +51,7 @@ public class MainForm extends javax.swing.JFrame {
         thuePhong();
         getContentPane().setBackground(Color.white);
         PanelExit.setBackground(new Color(51, 0, 51));
-        lblNameNV.setText(Auth.user.getHoTen());
+//        lblNameNV.setText(Auth.user.getHoTen());
 
     }
 
@@ -128,7 +128,7 @@ public class MainForm extends javax.swing.JFrame {
             //text so phong
             soPhong.add(new JLabel());
             soPhong.get(i).setForeground(Color.BLUE);
-            soPhong.get(i).setFont(new Font("Verdana", Font.PLAIN, 12));
+            soPhong.get(i).setFont(new Font("Verdana", Font.BOLD, 12));
 
             soPhong.get(i).setText(p.getSoPhong());
             soPhong.get(i).setHorizontalAlignment(JLabel.CENTER);
@@ -137,8 +137,8 @@ public class MainForm extends javax.swing.JFrame {
 
             //loaiphong
             loai.add(new JLabel());
-            loai.get(i).setForeground(Color.BLUE);
-            loai.get(i).setFont(new Font("Verdana", Font.PLAIN, 12));
+            loai.get(i).setForeground(Color.WHITE);
+            loai.get(i).setFont(new Font("Verdana", Font.BOLD,12));
             loai.get(i).setText(lDao.selectById(p.getMaLP()).getTenLP());
             loai.get(i).setHorizontalAlignment(JLabel.CENTER);
             loai.get(i).setVerticalTextPosition(JLabel.CENTER);
@@ -217,12 +217,15 @@ public class MainForm extends javax.swing.JFrame {
         thuePhong();
         this.setVisible(true);
     }
+    
+    
 
     public void execute() {
 
         MenuItem trangChu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/hotel.PNG")), "Trang chủ", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                
                 refresh();
             }
         });
@@ -281,14 +284,24 @@ public class MainForm extends javax.swing.JFrame {
         MenuItem qlDichVu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-service.PNG")),
                 "Dich vụ", null, dichVu, loaiDichVu);
 
-        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", null);
-        MenuItem kh = new MenuItem(null, "   Khách hàng", null);
-        MenuItem thongKe = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/analytics.PNG")), "Thống kê", new ActionListener() {
+        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ThongKe().setVisible(true);
+                ThongKe tk = new ThongKe();
+                tk.setVisible(true);
+                tk.tabs.setSelectedIndex(1);
             }
-        }, doanhthu, kh);
+            
+        });
+        MenuItem kh = new MenuItem(null, "   Khách hàng", new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ThongKe tk = new ThongKe();
+                tk.setVisible(true);
+                tk.tabs.setSelectedIndex(0);
+            }
+            });
+        MenuItem thongKe = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/analytics.PNG")), "Thống kê", null, doanhthu, kh);
 
         MenuItem khuyenMai = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/tag.PNG")),
                 "Khuyến mãi", new ActionListener() {

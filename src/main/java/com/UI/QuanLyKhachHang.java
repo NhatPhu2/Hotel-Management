@@ -77,7 +77,15 @@ public class QuanLyKhachHang extends javax.swing.JFrame {
             new String [] {
                 "CMND", "Họ tên", "Năm sinh", "Số điện thoại", "Giới tính", "Địa chỉ"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, true, true, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tbl_ManagerCustomer.setGridColor(new java.awt.Color(255, 255, 255));
         tbl_ManagerCustomer.setRowHeight(20);
         tbl_ManagerCustomer.setSelectionBackground(new java.awt.Color(0, 158, 250));

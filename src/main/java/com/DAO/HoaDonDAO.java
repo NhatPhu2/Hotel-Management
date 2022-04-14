@@ -64,6 +64,7 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
         List<HoaDon> list = this.selectBySql(sql, MaHD);
         return list.size() > 0 ? list.get(0) : null;
     }
+    
 
     @Override
     public List<HoaDon> selectAll() {
@@ -129,6 +130,41 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
             e.printStackTrace();
         }
         return i;
+    }
+    
+    public float getThanhTien(int maHD){
+        float i = 0;
+        try {
+            String sql = "{ ? = call thanhtienhd(?)}";
+             i = JdbcHelper.callFunction(sql, maHD).getFloat(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return i;
+    }
+    
+    public List<Object[]> tenDichVu(int maThue){
+         String sql = "{call tendichvuhd(?)}";
+        String cols[] ={"tendv","gia","soluong"} ;
+         return getListOfArray(sql,cols,maThue);
+     }
+    private List<Object[]> getListOfArray(String sql,String[] cols,Object...args){
+        try{
+            List<Object[]> list = new ArrayList<>();
+            ResultSet rs = JdbcHelper.query(sql, args);
+            while(rs.next()){
+                Object vals[] = new Object[cols.length];
+                for(int i =0; i <cols.length;i++){
+                    vals[i] = rs.getObject(cols[i]);
+                }
+                list.add(vals);
+                
+            }
+            rs.getStatement().getConnection().close();
+            return list;
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -344,6 +344,11 @@ public class TraPhongUI extends javax.swing.JFrame {
         btn_TraPhong.setkEndColor(new java.awt.Color(255, 255, 255));
         btn_TraPhong.setkHoverStartColor(new java.awt.Color(0, 204, 204));
         btn_TraPhong.setkStartColor(new java.awt.Color(0, 153, 255));
+        btn_TraPhong.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_TraPhongActionPerformed(evt);
+            }
+        });
         kGradientPanel1.add(btn_TraPhong, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 500, -1, -1));
 
         lblKetThuc1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -389,7 +394,7 @@ public class TraPhongUI extends javax.swing.JFrame {
 
         lblPhong.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         lblPhong.setText("Phòng số P101 (Đơn)");
-        jPanel1.add(lblPhong, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 120, -1, -1));
+        jPanel1.add(lblPhong, new org.netbeans.lib.awtextra.AbsoluteConstraints(65, 120, 330, -1));
 
         lblTienDV.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblTienDV.setText("Tổng tiền dịch vụ:");
@@ -627,6 +632,10 @@ public class TraPhongUI extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_txtTienKhachMouseReleased
+
+    private void btn_TraPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_TraPhongActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btn_TraPhongActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

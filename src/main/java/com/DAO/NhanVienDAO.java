@@ -61,6 +61,8 @@ public class NhanVienDAO extends QLKSDAO<NhanVien, String> {
         List<NhanVien> list = this.selectBySql(sql, maNV);
         return list.size() > 0 ? list.get(0) : null;
     }
+    
+    
 
     @Override
     public List<NhanVien> selectAll() {
