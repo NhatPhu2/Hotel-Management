@@ -27,7 +27,7 @@ public class ThongKe extends javax.swing.JFrame {
 
     public ThongKe() {
         initComponents();
-
+        this.setVisible(true);
         init();
     }
 

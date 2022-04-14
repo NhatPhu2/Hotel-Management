@@ -33,6 +33,7 @@ public class QuanLyPhong extends javax.swing.JFrame {
 
     public QuanLyPhong() {
         initComponents();
+        this.setVisible(true);
         init();
     }
 

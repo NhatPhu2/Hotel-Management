@@ -15,18 +15,17 @@ import com.Entity.HoaDon;
 import com.Entity.KhuyenMai;
 import com.Entity.NhanVien;
 import com.utils.Auth;
+import com.utils.MsgBox;
 import com.utils.XDate;
 import java.awt.Desktop;
 
-import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.Date;
+
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
@@ -64,6 +63,7 @@ public class HoaDonUI extends javax.swing.JFrame {
      */
     public HoaDonUI() {
         initComponents();
+        this.setVisible(true);
         init();
     }
 
@@ -112,7 +112,7 @@ public class HoaDonUI extends javax.swing.JFrame {
                 {null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Mã HD", "Mã KH", "Mã KM", "Mã NV", "Tên khách hàng", "Số Phòng", "Số dv sử dụng", "Ngày Lập HD", "Ngày xuất HD", "Số ngày ở", "Thành Tiền"
+                "Mã HD", "Cmnd", "Mã KM", "Mã NV", "Tên khách hàng", "Số Phòng", "Số dv sử dụng", "Ngày Lập HD", "Ngày xuất HD", "Số ngày ở", "Thành Tiền"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -277,8 +277,9 @@ public class HoaDonUI extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, kGradientPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jLabel5)
-                                .addGap(464, 464, 464)
+                                .addGap(316, 316, 316)
                                 .addComponent(lblThuLai, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(lblKetThuc, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -367,7 +368,10 @@ public class HoaDonUI extends javax.swing.JFrame {
     }//GEN-LAST:event_txtMaHDKeyReleased
 
     private void btn_XuatHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XuatHDActionPerformed
-        // TODO add your handling code here:
+        if(index == -1){
+            MsgBox.alert(this,"Chọn hóa đơn muốn xuất");
+            return;
+        }
         printExcel();
     }//GEN-LAST:event_btn_XuatHDActionPerformed
 
@@ -403,8 +407,8 @@ public class HoaDonUI extends javax.swing.JFrame {
         maloai = pDao.selectById(soPhong).getMaLP();
         loaiPhong = lDao.selectById(maloai).getTenLP();
         soNgay = (int) tbl_HoaDon.getValueAt(index, 9);
-        NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
-//        Formatter thanhTiens = (Formatter) tbl_HoaDon.getValueAt(index, 10);
+     
+   //     Formatter thanhTiens = (Formatter) tbl_HoaDon.getValueAt(index, 10);
         float t = Float.parseFloat(tbl_HoaDon.getValueAt(index, 10).toString());
         BigDecimal bg;
         bg = new BigDecimal(tpdao.tienCoc(tbl_HoaDon.getValueAt(index, 5).toString()));
@@ -539,51 +543,7 @@ public class HoaDonUI extends javax.swing.JFrame {
 
     }
 
-    public void PressPrintandSave(Integer ma) {
-        int line = tbl_HoaDon.getRowCount();
-        index = tbl_HoaDon.getSelectedRow();
-        if (index == -1) {
-            JOptionPane.showMessageDialog(this, "Bạn chưa chọn đối tượng!");
-        } else {
-            Integer mahd = (Integer) tbl_HoaDon.getValueAt(index, 0);
-            String makh = (String) tbl_HoaDon.getValueAt(index, 1);
-            String makm = (String) tbl_HoaDon.getValueAt(index, 2);
-            String manv = (String) tbl_HoaDon.getValueAt(index, 3);
-            String tenkh = (String) tbl_HoaDon.getValueAt(index, 4);
-            String sp = (String) tbl_HoaDon.getValueAt(index, 5);
-            int sdv = (int) tbl_HoaDon.getValueAt(index, 6);
-            Date ngayLap = (Date) tbl_HoaDon.getValueAt(index, 7);
-            Date ngayXuat = (Date) tbl_HoaDon.getValueAt(index, 8);
-            Formatter thanhTien = (Formatter) tbl_HoaDon.getValueAt(index, 9);
-            try {
-                Writer bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(".//History//" + mahd + ".txt"), "UTF8"));
-                bw.write("\t\t\tTHE BAMBOO HOTEL\r\n\r\n");
-                bw.write("\t\t590 CMT8, P.11, Q.3, TPHCM\r\n");
-                bw.write("\t\t\tSĐT: 01212692802\r\n\r\n");
-                bw.write("\t\t\tHÓA ĐƠN BÁN HÀNG\r\n\r\n");
-                bw.write("Mã hóa đơn: " + mahd + "\r\n");
-                bw.write("Ngày xuất: " + ngayXuat + "\r\n");
-                bw.write("NHÂN VIÊN: " + manv + "\r\n");
-                bw.write("-----------------------------------------------------------------------------------------------------------------------------------------------\r\n");
-                bw.write("Mã HD\tMã KH\t\tMã KM\t\tMã NV\t\tTên KH\t\tSố phòng\tSố DV\tNgày Lập HD\tNgày Xuất HD\tThành Tiền\r\n");
-                bw.write("-----------------------------------------------------------------------------------------------------------------------------------------------\r\n");
-                bw.write(mahd + "\t" + makh + "   " + makm + "\t\t" + manv + "\t    " + tenkh + "\t" + sp + "\t" + sdv + "\t" + ngayLap + "\t" + ngayXuat + "\t" + thanhTien + "\r\n\r\n");
-                bw.write("-----------------------------------------------------------------------------------------------------------------------------------------------\r\n");
-                bw.write("Mật khẩu Wifi: 88888888\r\n");
-                bw.write("----------------------------------------------------------CÁM ƠN QUÝ KHÁCH!---------------------------------------------------------------------");
-                bw.close();
-            } catch (Exception e) {
-            }
-
-            Runtime run = Runtime.getRuntime();
-            try {
-                run.exec("notepad History//" + mahd + ".txt");
-            } catch (IOException e) {
-            }
-        }
-
-    }
-
+   
     public void fillService() {
         float tongTien = 0;
 
@@ -670,8 +630,8 @@ public class HoaDonUI extends javax.swing.JFrame {
             String tenkh = (String) tbl_HoaDon.getValueAt(index, 4);
             String sp = (String) tbl_HoaDon.getValueAt(index, 5);
             int sdv = (int) tbl_HoaDon.getValueAt(index, 6);
-            Date ngayLap = (Date) tbl_HoaDon.getValueAt(index, 7);
-            Date ngayXuat = (Date) tbl_HoaDon.getValueAt(index, 8);
+            String ngayLap = tbl_HoaDon.getValueAt(index, 7).toString();
+            String ngayXuat = tbl_HoaDon.getValueAt(index, 8).toString();
             int songay = (int) tbl_HoaDon.getValueAt(index, 9);
             Formatter thanhTien = (Formatter) tbl_HoaDon.getValueAt(index, 10);
 

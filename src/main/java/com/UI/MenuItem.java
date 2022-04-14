@@ -35,6 +35,7 @@ public class MenuItem extends javax.swing.JPanel {
     }
     public MenuItem(ImageIcon icon,String menuName, ActionListener act, MenuItem... menu) {
         initComponents();
+        this.setVisible(true);
         lblName.setText(menuName);
         lblIcon.setIcon(icon);
         if (act != null) {

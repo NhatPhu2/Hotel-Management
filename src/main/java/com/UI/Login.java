@@ -40,6 +40,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
      */
     public Login() {
         initComponents();
+        this.setVisible(true);
         init();
     }
 
@@ -355,9 +356,10 @@ WebCam c;
             JOptionPane.showMessageDialog(this, "Sai mật khẩu!");
         } else {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
-            this.dispose();
             Auth.user = nv;
-            new MainForm().setVisible(true);
+           MainForm m =  new MainForm();
+                   m.setVisible(true);
+            this.dispose();
         }
 
     }

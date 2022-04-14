@@ -43,6 +43,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public ThuePhongUI() {
         initComponents();
+        this.setVisible(true);
         setLocationRelativeTo(null);
         chk_DatTruoc1.setSelected(false);
         txt_DatCoc.setVisible(false);
@@ -180,6 +181,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
         d.setTinhTrang("Chờ nhận phòng");
         d.setTienDatCoc(Float.parseFloat(txt_DatCoc.getText()));
         d.setCmnd(txt_CMND.getText());
+        d.setMaNV(Auth.user.getMaNV());
         return d;
     }
     
@@ -223,6 +225,16 @@ public class ThuePhongUI extends javax.swing.JFrame {
                 check = false;
             }
         }
+        
+         List<DatTruoc> listDatTruoc = dtDao.selectAll();
+         for(int i =0 ;i<listDatTruoc.size() ; i ++){ //kiểm tra khách hàng đã từng đến KS
+            DatTruoc dt = listDatTruoc.get(i);
+            if(date.equals(dt.getNgayNhanPhong()) && dt.getSoPhong().equals(p.getSoPhong())){
+                MsgBox.alert(this,"Phòng này đã có người đặt trước rồi");
+                return;
+            }
+        }
+        
         if(check == true)    
         khDao.insert(getValueKhachHang());
         if (chk_DatTruoc1.isSelected()){
@@ -231,8 +243,9 @@ public class ThuePhongUI extends javax.swing.JFrame {
          else {
             tpDao.insert(getValueThuePhong());
             hdDao.insert(getValueHoaDon());
+            spDao.updateTrangThaiPhong(getValuePhong());
         }
-        spDao.updateTrangThaiPhong(getValuePhong());
+        
 
     }
 
@@ -679,7 +692,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     public javax.swing.JComboBox<String> cbo_LoaiPhong;
     public javax.swing.JComboBox<String> cbo_SoPhong;
-    private javax.swing.JCheckBox chk_DatTruoc1;
+    public javax.swing.JCheckBox chk_DatTruoc1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;

@@ -32,6 +32,7 @@ public class KhuyenMaiUI extends javax.swing.JFrame {
      */
     public KhuyenMaiUI() {
         initComponents();
+        this.setVisible(true);
         init();
     }
 

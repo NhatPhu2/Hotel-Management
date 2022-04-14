@@ -20,6 +20,7 @@ public class WebCam extends javax.swing.JFrame{
      */
     public WebCam() {
         initComponents();
+        this.setVisible(true);
        
     }
 

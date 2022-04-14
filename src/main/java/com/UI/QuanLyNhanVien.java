@@ -34,6 +34,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
      */
     public QuanLyNhanVien() {
         initComponents();
+        this.setVisible(true);
         init();
     }
 

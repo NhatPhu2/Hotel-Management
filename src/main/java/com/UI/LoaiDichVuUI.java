@@ -21,6 +21,7 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
     int index = -1;
     public LoaiDichVuUI() {
         initComponents();
+        this.setVisible(true);
         fillTable();
     }
     
