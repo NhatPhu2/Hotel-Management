@@ -26,6 +26,7 @@ public class ChartUI extends javax.swing.JFrame {
      */
     public ChartUI() {
         initComponents();
+        this.setVisible(true);
         init();
         getContentPane().setBackground(new Color(250, 250, 250));
         chart1.addLegend("Khách hàng", new Color(245, 189, 135));

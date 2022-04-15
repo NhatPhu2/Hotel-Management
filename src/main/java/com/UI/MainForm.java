@@ -4,28 +4,35 @@
  */
 package com.UI;
 
+import com.DAO.DatTruocDAO;
 import com.DAO.LoaiPhongDAO;
 import com.DAO.PhongDAO;
+import com.Entity.DatTruoc;
 import com.Entity.LoaiPhong;
 import com.Entity.Phong;
+import com.Entity.ThuePhong;
 import com.utils.Auth;
 import com.utils.MsgBox;
+import com.utils.XDate;
+import java.awt.BorderLayout;
 import java.awt.Color;
+
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.text.NumberFormat;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Date;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  *
@@ -35,34 +42,41 @@ public class MainForm extends javax.swing.JFrame {
 
     PhongDAO pDao = new PhongDAO();
     LoaiPhongDAO lDao = new LoaiPhongDAO();
+    DatTruocDAO dtDao = new DatTruocDAO();
     List<Phong> list = pDao.selectAll();
+    List<DatTruoc> listDatTruoc = dtDao.selectAll();
     int size = list.size();
     List<JLabel> soPhong = new ArrayList<>();
     List<JLabel> loai = new ArrayList<>();
     List<JButton> tonghop = new ArrayList<>();
     List<JLabel> image = new ArrayList<>();
+    long millis = System.currentTimeMillis();
+    Date date = new Date(millis);
 
     public MainForm() {
         initComponents();
+        this.setVisible(true);
         this.setLocationRelativeTo(null);
         execute();
         fillPhong();
+        fillDatTruoc();
         fillStatus();
-        thuePhong();
+        action();
         getContentPane().setBackground(Color.white);
         PanelExit.setBackground(new Color(51, 0, 51));
-//        lblNameNV.setText(Auth.user.getHoTen());
-
+        lblNameNV.setText(Auth.user.getHoTen());
     }
 
-    public void thuePhong() {
+    public void action() {
 
         for (int i = 0; i < tonghop.size(); i++) {
             int index = i;
             tonghop.get(i).addActionListener(new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String data = e.getActionCommand();
+                    int indexx = -1;
                     if (data.equalsIgnoreCase("thuê phòng")) {
                         List<LoaiPhong> loaiList = lDao.selectByKeyWord(soPhong.get(index).getText());
                         Phong p = pDao.selectById(soPhong.get(index).getText());
@@ -73,11 +87,12 @@ public class MainForm extends javax.swing.JFrame {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 if (t.checkForm() == false) {
-                                    return;
+
                                 } else {
                                     t.add();
-                                    MsgBox.alert(t, "Thêm thành công");
+                                     fillDatTruoc();
                                     refresh();
+                                    MsgBox.alert(t, "Thêm thành công");
                                     t.dispose();
                                 }
 
@@ -88,6 +103,15 @@ public class MainForm extends javax.swing.JFrame {
 
                     } else if (data.equalsIgnoreCase("trả phòng")) {
                         TraPhongUI t = new TraPhongUI();
+
+                        for (int i = 0; i < t.listThuePhong.size(); i++) {
+                            ThuePhong tt = t.listThuePhong.get(i);
+                            if (tt.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText())) {
+                                t.tbl_CheckOut.setRowSelectionInterval(i, i);
+                                break;
+                            }
+                        }
+
                         t.btn_TraPhong.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -96,12 +120,48 @@ public class MainForm extends javax.swing.JFrame {
                                     return;
                                 }
                                 t.traPhong();
+                               
                                 refresh();
                                 t.dispose();
                             }
 
                         });
                         t.setVisible(true);
+                    } else if (data.equalsIgnoreCase("Đã có người đặt trước")) {
+                        DatTruocUI dt = new DatTruocUI();
+
+                        List<DatTruoc> listDT = dtDao.selectAll();
+
+                        for (int j = 0; j < listDT.size(); j++) {
+
+                            DatTruoc d = listDT.get(j);
+                            if (d.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText()) && d.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                                dt.tbl_DatTruoc.setRowSelectionInterval(j, j);
+                                break;
+                            }
+                        }
+                        dt.tbl_DatTruoc.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseReleased(MouseEvent e) {
+                                if (e.getButton() == MouseEvent.BUTTON3) {
+                                    if (e.isPopupTrigger() && dt.tbl_DatTruoc.getSelectedRowCount() != 0) {
+                                        dt.jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
+                                    }
+                                }
+                            }
+                        });
+                        
+                        dt.trangThai.addActionListener(new ActionListener(){
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                dt.datTruoc();
+                                refresh();
+                                dt.dispose();
+                            }
+                            
+                        });
+
+                        dt.setVisible(true);
                     } else {
                         if (MsgBox.confirm(null, "Đã dọn dẹp xong ?")) {
                             Phong p = new Phong();
@@ -128,7 +188,7 @@ public class MainForm extends javax.swing.JFrame {
             //text so phong
             soPhong.add(new JLabel());
             soPhong.get(i).setForeground(Color.BLUE);
-            soPhong.get(i).setFont(new Font("Verdana", Font.BOLD, 12));
+            soPhong.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
 
             soPhong.get(i).setText(p.getSoPhong());
             soPhong.get(i).setHorizontalAlignment(JLabel.CENTER);
@@ -137,48 +197,69 @@ public class MainForm extends javax.swing.JFrame {
 
             //loaiphong
             loai.add(new JLabel());
-            loai.get(i).setForeground(Color.WHITE);
-            loai.get(i).setFont(new Font("Verdana", Font.BOLD,12));
+            loai.get(i).setForeground(Color.white);
+            loai.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
             loai.get(i).setText(lDao.selectById(p.getMaLP()).getTenLP());
             loai.get(i).setHorizontalAlignment(JLabel.CENTER);
             loai.get(i).setVerticalTextPosition(JLabel.CENTER);
 
             //tonghop
             tonghop.add(new JButton());
-            tonghop.get(i).setFont(new Font("Verdana", Font.PLAIN, 13));
+            tonghop.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
             tonghop.get(i).setBorder(null);
-            tonghop.get(i).setBackground(null);
+            tonghop.get(i).setBackground(Color.white);
             tonghop.get(i).setFocusable(false);
-            tonghop.get(i).setBackground(Color.WHITE);
             tonghop.get(i).setHorizontalAlignment(JLabel.CENTER);
             tonghop.get(i).setVerticalTextPosition(JLabel.CENTER);
             tonghop.get(i).setCursor(new Cursor(HAND_CURSOR));
 
             //hình
             image.add(new JLabel());
-            image.get(i).setLayout(new GridLayout(0, 1, 50, 50));
+            image.get(i).setLayout(new BorderLayout());
             image.get(i).setHorizontalAlignment(JLabel.CENTER);
             image.get(i).setVerticalTextPosition(JLabel.CENTER);
+            image.get(i).setPreferredSize(new Dimension(120, 162));
 
-            image.get(i).add(soPhong.get(i));
-            image.get(i).add(loai.get(i));
-            image.get(i).add(tonghop.get(i));
+            image.get(i).add(soPhong.get(i), BorderLayout.NORTH);
+            image.get(i).add(loai.get(i), BorderLayout.CENTER);
+            image.get(i).add(tonghop.get(i), BorderLayout.SOUTH);
             pnlPhong.add(image.get(i));
         }
 
     }
 
-    public void fillStatus() {
+    public void fillDatTruoc() {
+        List<DatTruoc> listDT = dtDao.selectAll();
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = 0; j < listDT.size(); j++) {
+                DatTruoc dt = listDT.get(j);
+                java.sql.Date sqlDate = new java.sql.Date(dt.getNgayNhanPhong().getTime());
+                if (XDate.toString(sqlDate, "yyyy-MM-dd").equals(XDate.toString(date, "yyyy-MM-dd"))
+                        && dt.getSoPhong().equalsIgnoreCase(soPhong.get(i).getText()) && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                    Phong pp = new Phong();
+                    pp.setSoPhong(soPhong.get(i).getText());
+                    pp.setTinhTrang("Đã đặt trước");
+                    pDao.updateTrangThaiPhong(pp);
+                    break;
+                }
+            }
 
+        }
+    }
+
+    public void fillStatus() {
         for (int i = 0; i < list.size(); i++) {
             Phong p = list.get(i);
-            if (p.getTinhTrang().trim().equalsIgnoreCase("trống")) {
+            if (p.getTinhTrang().equalsIgnoreCase("trống")) {
 
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/door1.png")));
                 tonghop.get(i).setText("Thuê phòng");
-            } else if (p.getTinhTrang().trim().equalsIgnoreCase("đã có người")) {
+            } else if (p.getTinhTrang().equalsIgnoreCase("đã có người")) {
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/door.png")));
                 tonghop.get(i).setText("Trả phòng");
+            } else if (p.getTinhTrang().equalsIgnoreCase("đã đặt trước")) {
+                image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/reserved.png")));
+                tonghop.get(i).setText("Đã có người đặt trước");
             } else {
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/broom.png")));
                 tonghop.get(i).setText("Đang dọn dẹp");
@@ -213,19 +294,17 @@ public class MainForm extends javax.swing.JFrame {
         pnlPhong.repaint();
         list = pDao.selectAll();
         fillPhong();
+        fillDatTruoc();
         fillStatus();
-        thuePhong();
-        this.setVisible(true);
+        action();
+
     }
-    
-    
 
     public void execute() {
 
-        MenuItem trangChu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/hotel.PNG")), "Trang chủ", new ActionListener() {
+        MenuItem trangChu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/hotel.png")), "Trang chủ", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
                 refresh();
             }
         });
@@ -281,29 +360,27 @@ public class MainForm extends javax.swing.JFrame {
                 new LoaiDichVuUI().setVisible(true);
             }
         });
-        MenuItem qlDichVu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-service.PNG")),
+        MenuItem qlDichVu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-service.png")),
                 "Dich vụ", null, dichVu, loaiDichVu);
 
-        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", new ActionListener(){
+        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ThongKe tk = new ThongKe();
-                tk.setVisible(true);
                 tk.tabs.setSelectedIndex(1);
             }
-            
         });
-        MenuItem kh = new MenuItem(null, "   Khách hàng", new ActionListener(){
+        MenuItem kh = new MenuItem(null, "   Khách hàng", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ThongKe tk = new ThongKe();
-                tk.setVisible(true);
                 tk.tabs.setSelectedIndex(0);
             }
-            });
-        MenuItem thongKe = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/analytics.PNG")), "Thống kê", null, doanhthu, kh);
+        });
+        MenuItem thongKe = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/analytics.png")), "Thống kê", null,
+                doanhthu, kh);
 
-        MenuItem khuyenMai = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/tag.PNG")),
+        MenuItem khuyenMai = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/tag.png")),
                 "Khuyến mãi", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -311,7 +388,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        MenuItem dangX = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/log-out.PNG")), "Đăng xuất", new ActionListener() {
+        MenuItem dangX = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/log-out.png")), "Đăng xuất", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dangXuat();
@@ -326,16 +403,16 @@ public class MainForm extends javax.swing.JFrame {
             }
 
         });
-        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.PNG")), "Quản lý phòng", null, qlP, thongT, dattruoc);
+        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, thongT, dattruoc);
 
-        MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.PNG")), "Quản lý nhân viên", new ActionListener() {
+        MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.png")), "Quản lý nhân viên", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new QuanLyNhanVien().setVisible(true);
             }
         });
 
-        MenuItem qlKhachHang = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-feedback.PNG")), "Quản lý khách hàng",
+        MenuItem qlKhachHang = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-feedback.png")), "Quản lý khách hàng",
                 new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -344,7 +421,7 @@ public class MainForm extends javax.swing.JFrame {
 
         });
 
-        MenuItem hoaDon = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/bill.PNG")), "Hóa đơn",
+        MenuItem hoaDon = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/bill.png")), "Hóa đơn",
                 new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -365,9 +442,11 @@ public class MainForm extends javax.swing.JFrame {
         themPhong = new javax.swing.JMenuItem();
         pnlMenu = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        pnlPhong = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lblNameNV = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        pnlPhong = new javax.swing.JPanel();
         PanelExit = new javax.swing.JPanel();
         lblThuLai = new javax.swing.JLabel();
         lblKetThuc = new javax.swing.JLabel();
@@ -387,15 +466,6 @@ public class MainForm extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        pnlPhong.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPhong.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                pnlPhongKeyReleased(evt);
-            }
-        });
-        pnlPhong.setLayout(new java.awt.GridLayout(3, 5, 15, 15));
-        jPanel2.add(pnlPhong, new org.netbeans.lib.awtextra.AbsoluteConstraints(8, 97, 670, 530));
-
         jLabel1.setFont(new java.awt.Font("UTM Isadora", 0, 36)); // NOI18N
         jLabel1.setText("Chào mừng đến với khách sạn BamBoo");
         jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
@@ -403,7 +473,27 @@ public class MainForm extends javax.swing.JFrame {
         lblNameNV.setText("Tên nhân viên");
         jPanel2.add(lblNameNV, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 10, 100, -1));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 23, 690, -1));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        pnlPhong.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPhong.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                pnlPhongKeyReleased(evt);
+            }
+        });
+        pnlPhong.setLayout(new java.awt.GridLayout(0, 5, 15, 15));
+        jScrollPane1.setViewportView(pnlPhong);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 710, 570));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 23, 710, -1));
 
         PanelExit.setLayout(null);
 
@@ -431,7 +521,7 @@ public class MainForm extends javax.swing.JFrame {
         PanelExit.add(lblKetThuc);
         lblKetThuc.setBounds(880, 0, 30, 20);
 
-        getContentPane().add(PanelExit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 920, 20));
+        getContentPane().add(PanelExit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 940, 20));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -488,7 +578,9 @@ public class MainForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelExit;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPopupMenu jpoMenu;
     private javax.swing.JLabel lblKetThuc;
     private javax.swing.JLabel lblNameNV;

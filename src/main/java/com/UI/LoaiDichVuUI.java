@@ -15,16 +15,17 @@ import javax.swing.table.DefaultTableModel;
  * @author Admin
  */
 public class LoaiDichVuUI extends javax.swing.JFrame {
-    
+
     List<LoaiDichVu> listLoaiDichVu;
     LoaiDichVuDAO loaiDichVuDao = new LoaiDichVuDAO();
     int index = -1;
+
     public LoaiDichVuUI() {
         initComponents();
         setLocationRelativeTo(null);
         fillTable();
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -158,8 +159,8 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 219, Short.MAX_VALUE)
                         .addComponent(jLabel3)
-                        .addGap(165, 165, 165)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(160, 160, 160)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -208,8 +209,8 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblDichVuMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDichVuMousePressed
-      index = tblDichVu.getSelectedRow();
-      setForm();
+        index = tblDichVu.getSelectedRow();
+        setForm();
     }//GEN-LAST:event_tblDichVuMousePressed
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
@@ -217,18 +218,18 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void btnCapNhatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCapNhatActionPerformed
-       if(index == -1){
-           return;
-       }
-        
+        if (index == -1) {
+            return;
+        }
+
         update();
     }//GEN-LAST:event_btnCapNhatActionPerformed
 
     private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
-     if(index == -1){
-           return;
-       }
-     delete();
+        if (index == -1) {
+            return;
+        }
+        delete();
     }//GEN-LAST:event_btnXoaActionPerformed
 
     private void btnMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMoiActionPerformed
@@ -236,7 +237,7 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMoiActionPerformed
 
     private void jLabel4MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MousePressed
-       this.dispose();
+        this.dispose();
     }//GEN-LAST:event_jLabel4MousePressed
 
     public void fillTable() {
@@ -248,56 +249,56 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
             model.addRow(obj);
         });
     }
-    
-    public LoaiDichVu getForm(){
+
+    public LoaiDichVu getForm() {
         LoaiDichVu dv = new LoaiDichVu();
         dv.setTenLoai(txtTenLoai.getText());
         dv.setGhiChu(txtaGhiChu.getText());
         return dv;
     }
-    
-     public LoaiDichVu getFormUpdate(){
+
+    public LoaiDichVu getFormUpdate() {
         LoaiDichVu dv = new LoaiDichVu();
         dv.setTenLoai(txtTenLoai.getText());
         dv.setGhiChu(txtaGhiChu.getText());
         dv.setMaLoai(listLoaiDichVu.get(index).getMaLoai());
         return dv;
     }
-     
-     public void clear(){
-          txtTenLoai.setText("");
-         txtaGhiChu.setText("");
-     }
-     
-     public void setForm(){
-         txtTenLoai.setText(listLoaiDichVu.get(index).getTenLoai());
-         txtaGhiChu.setText(listLoaiDichVu.get(index).getGhiChu());
-     }
-    
-    public void add(){
-        if(txtTenLoai.getText().trim().isEmpty()){
-            MsgBox.alert(this,"Không để trống tên loại");
+
+    public void clear() {
+        txtTenLoai.setText("");
+        txtaGhiChu.setText("");
+    }
+
+    public void setForm() {
+        txtTenLoai.setText(listLoaiDichVu.get(index).getTenLoai());
+        txtaGhiChu.setText(listLoaiDichVu.get(index).getGhiChu());
+    }
+
+    public void add() {
+        if (txtTenLoai.getText().trim().isEmpty()) {
+            MsgBox.alert(this, "Không để trống tên loại");
             return;
         }
-        
+
         loaiDichVuDao.insert(getForm());
         fillTable();
     }
-    
-    public void update(){
-         if(txtTenLoai.getText().trim().isEmpty()){
-            MsgBox.alert(this,"Không để trống tên loại");
+
+    public void update() {
+        if (txtTenLoai.getText().trim().isEmpty()) {
+            MsgBox.alert(this, "Không để trống tên loại");
             return;
         }
         loaiDichVuDao.update(getFormUpdate());
         fillTable();
     }
-    
-    public void delete(){
+
+    public void delete() {
         loaiDichVuDao.delete(listLoaiDichVu.get(index).getMaLoai());
         fillTable();
     }
-    
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

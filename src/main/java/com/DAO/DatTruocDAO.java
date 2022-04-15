@@ -20,9 +20,9 @@ public class DatTruocDAO extends QLKSDAO<DatTruoc, Integer> {
 
     @Override
     public void insert(DatTruoc model) {
-        String sql = "set identity_insert dattruov on"
-                + " INSERT INTO dattruoc (cmnd, ngaytra, ngayNhanPhong, tienDatCoc, maNV, sophong, tinhTrang) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                + " set identity_insert thuephong off";
+        String sql = 
+                 "INSERT INTO dattruoc (cmnd, ngaytra, ngayNhanPhong, tienDatCoc, maNV, sophong, tinhTrang) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                ;
         JdbcHelper.update(sql,
                 model.getCmnd(),
                 model.getNgayTra(),

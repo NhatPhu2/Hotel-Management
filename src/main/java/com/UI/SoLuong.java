@@ -13,6 +13,7 @@ public class SoLuong extends javax.swing.JFrame {
    
     public SoLuong() {
         initComponents();
+        this.setVisible(true);
         txtAmount.setEditable(false);
         txtAmount.setText(count+"");
         this.setLocationRelativeTo(null);
@@ -37,6 +38,7 @@ public class SoLuong extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(153, 153, 255));
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Tên dịch vụ:");
 
@@ -44,6 +46,7 @@ public class SoLuong extends javax.swing.JFrame {
         lblRoomNumber.setForeground(new java.awt.Color(255, 255, 255));
         lblRoomNumber.setText("Số Phòng");
 
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Số lượng:");
 
@@ -63,6 +66,9 @@ public class SoLuong extends javax.swing.JFrame {
             }
         });
 
+        txtAmount.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+
+        lblServiceName.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         lblServiceName.setForeground(new java.awt.Color(255, 255, 255));
         lblServiceName.setText("Cơm sườn");
 
@@ -93,10 +99,10 @@ public class SoLuong extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnUp, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblServiceName, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
