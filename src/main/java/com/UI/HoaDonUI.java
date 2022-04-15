@@ -58,6 +58,7 @@ public class HoaDonUI extends javax.swing.JFrame {
     KhuyenMaiDAO kmDao = new KhuyenMaiDAO();
     PhongDAO pDao = new PhongDAO();
     ThuePhongDAO tpdao = new ThuePhongDAO();
+    KhuyenMaiDAO kmdao = new KhuyenMaiDAO();
 
     /**
      * Creates new form HoaDon
@@ -288,12 +289,12 @@ public class HoaDonUI extends javax.swing.JFrame {
                                 .addComponent(txtMaHD, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jSeparator2)
-                            .addComponent(jScrollPane2)))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 937, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(kGradientPanel1Layout.createSequentialGroup()
-                        .addGap(375, 375, 375)
+                        .addGap(358, 358, 358)
                         .addComponent(btn_XuatHD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(383, 383, 383)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 473, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(kGradientPanel1Layout.createSequentialGroup()
@@ -335,8 +336,9 @@ public class HoaDonUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(kGradientPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -397,11 +399,19 @@ public class HoaDonUI extends javax.swing.JFrame {
     NhanVienDAO nvdao = new NhanVienDAO();
     private void tbl_HoaDonMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_HoaDonMousePressed
         // TODO add your handling code here:
+        float giamGia;
         index = tbl_HoaDon.getSelectedRow();
+        String makm = (String) tbl_HoaDon.getValueAt(index, 2);
+        KhuyenMai km = kmdao.selectById(makm);
         int mahd = (int) tbl_HoaDon.getValueAt(index, 0);
-        soPhong = tbl_HoaDon.getValueAt(index, 5).toString().trim();
-        maloai = pDao.selectById(soPhong).getMaLP();
-        loaiPhong = lDao.selectById(maloai).getTenLP();
+        if (tbl_HoaDon.getValueAt(index, 5).toString().isEmpty()) {
+            soPhong = "999";
+        } else {
+            soPhong = tbl_HoaDon.getValueAt(index, 5).toString().trim();
+            maloai = pDao.selectById(soPhong).getMaLP();
+            loaiPhong = lDao.selectById(maloai).getTenLP();
+        }
+
         soNgay = (int) tbl_HoaDon.getValueAt(index, 9);
         NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
 //        Formatter thanhTiens = (Formatter) tbl_HoaDon.getValueAt(index, 10);
@@ -411,10 +421,16 @@ public class HoaDonUI extends javax.swing.JFrame {
         tienCoc = Float.parseFloat(bg.toString());
         tienPhong = dao.getThanhTien(mahd);
         ngayDen = tbl_HoaDon.getValueAt(index, 7).toString();
-        ngayDi = tbl_HoaDon.getValueAt(index, 8).toString();
+        if (tbl_HoaDon.getValueAt(index, 8) != null) {
+            ngayDi = tbl_HoaDon.getValueAt(index, 8).toString();
+        } else {
+            ngayDi = "";
+        }
         String manv = tbl_HoaDon.getValueAt(index, 3).toString();
+        if (manv == null) {
+            manv = "";
+        }
         NhanVien nv = nvdao.selectById(manv);
-        
         fillService();
         lblPhong.setText("Phòng " + soPhong + "(" + loaiPhong + ")");
         lblSoNgay.setText("Số ngày ở: " + soNgay);
@@ -424,6 +440,14 @@ public class HoaDonUI extends javax.swing.JFrame {
         lblNgayDi.setText("Ngày Đi: " + ngayDi);
         lblTongTien.setText("Tổng tiền: " + nf.format(t));
         lblNguoiThu.setText(nv.getHoTen());
+        if (makm != null) {
+            giamGia = km.getPhanTramGiam();
+        } else {
+            giamGia = 0;
+        }
+        lblGiamGia.setText("Giảm giá: " + giamGia + " %");
+
+
     }//GEN-LAST:event_tbl_HoaDonMousePressed
 
     /**
@@ -513,6 +537,12 @@ public class HoaDonUI extends javax.swing.JFrame {
                     BigDecimal bg = new BigDecimal(hd.getThanhTien());
                     Formatter fmt = new Formatter();
                     fmt.format("%." + bg.scale() + "f", bg);
+                    if (hd.getSoPhong() == null) {
+                        hd.setSoPhong("");
+                    }
+                    if (hd.getNgayXuat() == null) {
+                        hd.setNgayXuat(null);
+                    }
                     Object[] row = {hd.getMaHD(), hd.getCmnd(), hd.getMaKM(), hd.getMaNV(),
                         name, hd.getSoPhong(), hd.getSodv(), hd.getNgayLap(), hd.getNgayXuat(), hd.getSoNgay(), fmt};
                     model.addRow(row);
@@ -670,8 +700,8 @@ public class HoaDonUI extends javax.swing.JFrame {
             String tenkh = (String) tbl_HoaDon.getValueAt(index, 4);
             String sp = (String) tbl_HoaDon.getValueAt(index, 5);
             int sdv = (int) tbl_HoaDon.getValueAt(index, 6);
-            Date ngayLap = (Date) tbl_HoaDon.getValueAt(index, 7);
-            Date ngayXuat = (Date) tbl_HoaDon.getValueAt(index, 8);
+            String ngayLap = tbl_HoaDon.getValueAt(index, 7).toString();
+            String ngayXuat = tbl_HoaDon.getValueAt(index, 8).toString();
             int songay = (int) tbl_HoaDon.getValueAt(index, 9);
             Formatter thanhTien = (Formatter) tbl_HoaDon.getValueAt(index, 10);
 

@@ -21,6 +21,7 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
     int index = -1;
     public LoaiDichVuUI() {
         initComponents();
+        setLocationRelativeTo(null);
         fillTable();
     }
     
@@ -43,7 +44,7 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(51, 153, 255));
 

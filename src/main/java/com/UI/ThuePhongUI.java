@@ -405,6 +405,11 @@ public class ThuePhongUI extends javax.swing.JFrame {
         btn_ThemPhong.setkEndColor(new java.awt.Color(255, 255, 255));
         btn_ThemPhong.setkHoverStartColor(new java.awt.Color(0, 204, 204));
         btn_ThemPhong.setkStartColor(new java.awt.Color(0, 153, 255));
+        btn_ThemPhong.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_ThemPhongActionPerformed(evt);
+            }
+        });
 
         btn_New.setText("Làm mới");
         btn_New.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
@@ -637,6 +642,11 @@ public class ThuePhongUI extends javax.swing.JFrame {
     private void btn_NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_NewActionPerformed
         clearForm();
     }//GEN-LAST:event_btn_NewActionPerformed
+
+    private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
+        // TODO add your handling code here:
+        add();
+    }//GEN-LAST:event_btn_ThemPhongActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
