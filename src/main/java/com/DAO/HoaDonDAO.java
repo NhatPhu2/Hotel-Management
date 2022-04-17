@@ -19,8 +19,8 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
 
     @Override
     public void insert(HoaDon hd) {
-        String sql = "INSERT INTO hoadon (mathue,sodv,sophong,cmnd, maKM, maNV, thanhTien, ngayLapHD, ngayXuatHD,songayo) "
-                + "VALUES (?, ? ,?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO hoadon (mathue,sodv,sophong,cmnd, maKM, maNV, thanhTien, ngayLapHD, ngayXuatHD,songayo,tinhtrang) "
+                + "VALUES (?, ? ,?, ?, ?, ?, ?, ?, ?, ? , ?)";
         JdbcHelper.update(sql,
                 hd.getMaThue(),
                 hd.getSodv(),
@@ -31,13 +31,15 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
                 hd.getThanhTien(),
                 hd.getNgayLap(),
                 hd.getNgayXuat(),
-                hd.getSoNgay()
+                hd.getSoNgay(),
+                hd.getTinhTrang()
         );
     }
 
     @Override
     public void update(HoaDon hd) {
-        String sql = "UPDATE hoadon SET sophong = ?,makm = ?, maNV=?, thanhTien=?,ngayXuatHD=? ,songayo = ? ,sodv = ?  WHERE mahd=?";
+        String sql = "UPDATE hoadon SET sophong = ?,makm = ?, maNV=?, thanhTien=?,ngayXuatHD=? ,songayo = ? ,sodv = ?,tinhtrang = ?  "
+                + "WHERE mahd=?";
         JdbcHelper.update(sql,
                 hd.getSoPhong(),
                 hd.getMaKM(),
@@ -46,7 +48,9 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
                 hd.getNgayXuat(),
                 hd.getSoNgay(),
                 hd.getSodv(),
+                hd.getTinhTrang(),
                 hd.getMaHD()
+                
                 
         );
     }
@@ -107,6 +111,7 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
         hd.setSodv((rs.getInt("sodv")));
         hd.setSoPhong(rs.getString("sophong"));
         hd.setSoNgay(rs.getInt("songayo"));
+        hd.setTinhTrang(rs.getString("tinhtrang"));
         return hd;
     }
 
@@ -148,6 +153,12 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
         String cols[] ={"tendv","gia","soluong"} ;
          return getListOfArray(sql,cols,maThue);
      }
+    
+    public List<HoaDon> selectByCmnd(String cmnd){
+        String sql = "select * from hoadon where cmnd = ?";
+        return selectBySql(sql,cmnd);
+    }
+    
     private List<Object[]> getListOfArray(String sql,String[] cols,Object...args){
         try{
             List<Object[]> list = new ArrayList<>();

@@ -6,6 +6,7 @@
 package com.UI;
 
 import com.DAO.ChiTietHoaDonDAO;
+import com.DAO.DatTruocDAO;
 import com.DAO.HoaDonDAO;
 import com.DAO.KhachHangDAO;
 import com.DAO.KhuyenMaiDAO;
@@ -13,6 +14,7 @@ import com.DAO.LoaiPhongDAO;
 import com.DAO.PhongDAO;
 import com.DAO.ThuePhongDAO;
 import com.Entity.ChiTietHoaDon;
+import com.Entity.DatTruoc;
 
 import java.util.List;
 import javax.swing.ImageIcon;
@@ -55,31 +57,37 @@ public class TraPhongUI extends javax.swing.JFrame {
         txtTienThua.setEditable(false);
     }
     List<ThuePhong> listThuePhong;
-    ThuePhongDAO dao = new ThuePhongDAO();
+    ThuePhongDAO thuePhongDao = new ThuePhongDAO();
     KhachHangDAO khDao = new KhachHangDAO();
     LoaiPhongDAO lDao = new LoaiPhongDAO();
     PhongDAO pDao = new PhongDAO();
     HoaDonDAO hdDao = new HoaDonDAO();
     KhuyenMaiDAO kmDao = new KhuyenMaiDAO();
     ChiTietHoaDonDAO ctDao = new ChiTietHoaDonDAO();
+    DatTruocDAO dtDao = new DatTruocDAO();
     DefaultTableModel model;
     long millis = System.currentTimeMillis();
     Date date = new java.sql.Date(millis);
     int index = -1;
-
+    
+     public void notification(MsgBox.Type type, String message) {
+        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
+        panel.showNotification();
+    }
+    
     public void fillTable() {
         model = (DefaultTableModel) tbl_CheckOut.getModel();
         model.setRowCount(0);
-        listThuePhong = dao.selectAll();
+        listThuePhong = thuePhongDao.selectAll();
         for (int i = 0; i < listThuePhong.size(); i++) {
             ThuePhong tp = listThuePhong.get(i);
             String name = khDao.selectById(tp.getCmnd()).getTenKH();
             String maloai = pDao.selectById(tp.getSoPhong()).getMaLP();
             String loaiPhong = lDao.selectById(maloai).getTenLP();
-            BigDecimal bg = new BigDecimal(dao.tienCoc(tp.getSoPhong()));
+            BigDecimal bg = new BigDecimal(thuePhongDao.tienCoc(tp.getSoPhong()));
             Formatter ftm = new Formatter();
             ftm.format("%." + bg.scale() + "f", bg);
-            Object[] obj = {tp.getMaThue(), tp.getCmnd(), name, tp.getSoPhong(), loaiPhong, tp.getNgayThue(), tp.getNgayTra(), dao.soDV(tp.getMaThue()), ftm};
+            Object[] obj = {tp.getMaThue(), tp.getCmnd(), name, tp.getSoPhong(), loaiPhong, tp.getNgayThue(), tp.getNgayTra(), thuePhongDao.soDV(tp.getMaThue()), ftm};
             model.addRow(obj);
         }
     }
@@ -97,6 +105,7 @@ public class TraPhongUI extends javax.swing.JFrame {
         hd.setMaHD(maHD);
         hd.setSoNgay(hdDao.soNgay(maThue));
         hd.setSodv(soDV);
+        hd.setTinhTrang("Đã thanh toán");
         return hd;
 
     }
@@ -107,12 +116,23 @@ public class TraPhongUI extends javax.swing.JFrame {
         p.setSoPhong(soPhong);
         return p;
     }
+    
+    public DatTruoc updateStatus(){
+        DatTruoc dt = new DatTruoc();
+        DatTruoc d = dtDao.selectMaDT(soPhong);
+        dt.setMaDT(d.getMaDT());
+        dt.setTinhTrang("Đã thanh toán");
+        return dt;
+    }
 
     public void traPhong() {
         hdDao.update(getValueHoaDon());
         pDao.updateTrangThaiPhong(getValuePhong());
-        dao.delete(maThue);
-        JOptionPane.showMessageDialog(null, "Thanh toán thành công");
+        if(tienCoc > 0){
+        dtDao.updateStatus(updateStatus());
+        }
+        thuePhongDao.delete(maThue);
+        notification(MsgBox.Type.SUCCESS,"Thanh toán thành công");
         fillTable();
     }
 
@@ -181,7 +201,7 @@ public class TraPhongUI extends javax.swing.JFrame {
                                         ctDao.insert(ct);
                                     }
                                     fillTable();
-                                    JOptionPane.showMessageDialog(null, "Thêm dịch vụ thành công");
+                                    notification(MsgBox.Type.SUCCESS,"Thêm dịch vụ thành công");
                                     sl.dispose();
                                 }
 
@@ -204,7 +224,7 @@ public class TraPhongUI extends javax.swing.JFrame {
         
         DefaultTableModel model = (DefaultTableModel) tbl_Service.getModel();
         model.setRowCount(0);
-        List<Object[]> list = dao.tenDichVu(maThue);
+        List<Object[]> list = thuePhongDao.tenDichVu(maThue);
         int sTT = 1;
 
         for (Object[] row : list) {
@@ -212,7 +232,7 @@ public class TraPhongUI extends javax.swing.JFrame {
             float donGia = Float.parseFloat(row[1].toString());
             float thanhTien = soLuong * donGia;
             tongTien += thanhTien;
-            model.addRow(new Object[]{sTT++, row[0], soLuong, nf.format(donGia), nf.format(thanhTien)});
+            model.addRow(new Object[]{sTT++, row[0], soLuong, nf.format(donGia), row[3],nf.format(thanhTien)});
         }
         tongTienDV = tongTien;
         lblTienDV.setText("Tổng tiền dịch vụ: " + nf.format(tongTienDV));
@@ -452,7 +472,7 @@ public class TraPhongUI extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Stt", "Tên", "SL", "Đ.giá", "T.tiền"
+                "Stt", "Tên", "SL", "Đ.giá", "Ngày sử dụng", "T.tiền"
             }
         ));
         tbl_Service.setGridColor(new java.awt.Color(255, 255, 255));
@@ -523,7 +543,7 @@ public class TraPhongUI extends javax.swing.JFrame {
         if (p == null) {
             return;
         }
-        dao.update(p);
+        thuePhongDao.update(p);
         fillTable();
         MsgBox.alert(null, "Gia hạn thành công");
     }//GEN-LAST:event_giaHanMousePressed
@@ -542,14 +562,15 @@ public class TraPhongUI extends javax.swing.JFrame {
     String cmnd;
     float tienKhach;
     float tienThua;
-    private void tbl_CheckOutMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_CheckOutMousePressed
+    
+    public void setFormHoaDon(){
         index = tbl_CheckOut.getSelectedRow();
         soPhong = tbl_CheckOut.getValueAt(index, 3).toString();
         maloai = pDao.selectById(soPhong).getMaLP();
         loaiPhong = lDao.selectById(maloai).getTenLP();
         maThue = (int) tbl_CheckOut.getValueAt(index, 0);
         soNgay = (int) hdDao.soNgay(maThue);
-        tienPhong = dao.getThanhTien(maThue);
+        tienPhong = thuePhongDao.getThanhTien(maThue);
         cmnd = tbl_CheckOut.getValueAt(index, 1).toString();
         fillService();
         NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -569,6 +590,10 @@ public class TraPhongUI extends javax.swing.JFrame {
         lblNgayDi.setText("Ngày Đi: " + XDate.toString(date, "yyyy-MM-dd"));
         lblTongTien.setText("Tổng tiền: " + nf.format(thanhTien));
         lblNguoiThu.setText(Auth.user.getHoTen());
+    }
+    
+    private void tbl_CheckOutMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbl_CheckOutMousePressed
+        setFormHoaDon();
 
     }//GEN-LAST:event_tbl_CheckOutMousePressed
 
@@ -576,16 +601,16 @@ public class TraPhongUI extends javax.swing.JFrame {
         model = (DefaultTableModel) tbl_CheckOut.getModel();
         model.setRowCount(0);
         listThuePhong.clear();
-        listThuePhong = dao.selectByKeyWord(txtKeyWord.getText());
+        listThuePhong = thuePhongDao.selectByKeyWord(txtKeyWord.getText());
         for (int i = 0; i < listThuePhong.size(); i++) {
             ThuePhong tp = listThuePhong.get(i);
             String name = khDao.selectById(tp.getCmnd()).getTenKH();
             String maloai = pDao.selectById(tp.getSoPhong()).getMaLP();
             String loaiPhong = lDao.selectById(maloai).getTenLP();
-            BigDecimal bg = new BigDecimal(dao.tienCoc(tp.getSoPhong()));
+            BigDecimal bg = new BigDecimal(thuePhongDao.tienCoc(tp.getSoPhong()));
             Formatter ftm = new Formatter();
             ftm.format("%." + bg.scale() + "f", bg);
-            Object[] obj = {tp.getMaThue(), tp.getCmnd(), name, tp.getSoPhong(), loaiPhong, tp.getNgayThue(), tp.getNgayTra(), dao.soDV(tp.getMaThue()),ftm};
+            Object[] obj = {tp.getMaThue(), tp.getCmnd(), name, tp.getSoPhong(), loaiPhong, tp.getNgayThue(), tp.getNgayTra(), thuePhongDao.soDV(tp.getMaThue()),ftm};
             model.addRow(obj);
         }
         

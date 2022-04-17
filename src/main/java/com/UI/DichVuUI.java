@@ -26,15 +26,13 @@ import javax.swing.table.DefaultTableModel;
  */
 public class DichVuUI extends javax.swing.JFrame {
 
-    /**
-     * Creates new form DichVu
-     */
     public DichVuUI() {
         initComponents();
         this.setVisible(true);
         init();
     }
     int index = -1;
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -273,6 +271,10 @@ public class DichVuUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void notification(MsgBox.Type type, String message) {
+        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
+        panel.showNotification();
+    }
     private void lblKetThucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKetThucMouseClicked
         // TODO add your handling code here:
         this.dispose();
@@ -284,27 +286,34 @@ public class DichVuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_lblThuLaiMouseClicked
 
     private void kButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kButton1ActionPerformed
-
+        if (checkForm() == false) {
+            return;
+        }
         insert();
-        MsgBox.alert(this,"Thêm thành công");
+        notification(MsgBox.Type.SUCCESS, "Thêm thành công");
+
     }//GEN-LAST:event_kButton1ActionPerformed
 
     private void kButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kButton2ActionPerformed
-       if(index == -1){
-           MsgBox.alert(this,"Vui lòng chọn dịch vụ để xóa");
-           return;
-       }
+        if (index == -1) {
+            notification(MsgBox.Type.WARNING, "Vui lòng chọn dịch vụ muốn xóa");
+
+            return;
+        }
         delete();
-         MsgBox.alert(this,"Xóa thành công");
+        notification(MsgBox.Type.SUCCESS, "Xóa thành công");
+
     }//GEN-LAST:event_kButton2ActionPerformed
 
     private void kButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kButton3ActionPerformed
-       if(index == -1){
-           MsgBox.alert(this,"Vui lòng chọn dịch vụ để cập nhật");
-           return;
-       }
+        if (index == -1) {
+            notification(MsgBox.Type.WARNING, "Vui lòng chọn dịch vụ muốn cập nhật");
+            return;
+        }
         update();
-         MsgBox.alert(this,"Cập nhật thành công");
+        notification(MsgBox.Type.SUCCESS, "Cập nhật thành công");
+
+
     }//GEN-LAST:event_kButton3ActionPerformed
 
     private void kButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kButton4ActionPerformed
@@ -313,7 +322,7 @@ public class DichVuUI extends javax.swing.JFrame {
     }//GEN-LAST:event_kButton4ActionPerformed
 
     private void txtgia1FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtgia1FocusLost
-      
+
     }//GEN-LAST:event_txtgia1FocusLost
 
     private void txtTenDichVuFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtTenDichVuFocusLost
@@ -386,6 +395,7 @@ public class DichVuUI extends javax.swing.JFrame {
     NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
     int row = -1;
     List<DichVu> list = dichVuDao.selectAll();
+
     private void init() {
         this.setLocationRelativeTo(null);
         filltable();
@@ -402,8 +412,6 @@ public class DichVuUI extends javax.swing.JFrame {
         model.toString();
     }
 
-   
-
     public void filltable() {
         DefaultTableModel model = (DefaultTableModel) tbl_DichVu.getModel();
         model.setRowCount(0);
@@ -418,26 +426,25 @@ public class DichVuUI extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }
-    
-    public boolean checkForm(){
-        if(txtTenDichVu.getText().trim().isEmpty()){            
-            MsgBox.alert(this,"Không để trống tên dịch vụ");
+
+    public boolean checkForm() {
+        if (txtTenDichVu.getText().trim().isEmpty()) {
+            notification(MsgBox.Type.WARNING, "Không để trống tên dịch vụ");
             return false;
         }
-        try{
+        try {
             float gia = Float.parseFloat(txtgia1.getText());
-            if(gia <= 0){
-                    throw new Exception();
+            if (gia <= 0) {
+                throw new Exception();
             }
-        }catch(Exception e){
-            MsgBox.alert(this,"Giá không hợp lệ(Chỉ nhập số và không nhỏ hơn 0)");
+        } catch (Exception e) {
+            notification(MsgBox.Type.WARNING, "Giá không hợp lệ(Chỉ nhập số và không nhỏ hơn 0)");
             return false;
         }
-        
-        
+
         return true;
     }
-    
+
     public DichVu getForm() {
         DichVu dv = new DichVu();
         LoaiDichVu dv2 = (LoaiDichVu) cbo_LoaiDV.getSelectedItem();
@@ -448,29 +455,29 @@ public class DichVuUI extends javax.swing.JFrame {
     }
 
     public void setForm() {
-        String tenDichVu = tbl_DichVu.getValueAt(index,2).toString();
+        String tenDichVu = tbl_DichVu.getValueAt(index, 2).toString();
         float donGia = list.get(index).getGia();
         txtTenDichVu.setText(tenDichVu);
-        txtgia1.setText(donGia+"");
+        txtgia1.setText(donGia + "");
         LoaiDichVu dv = loaiDichVuDao.selectById(list.get(index).getMaLoai());
         cbo_LoaiDV.getModel().setSelectedItem(dv);
     }
 
     void clearFrom() {
-       txtTenDichVu.setText("");
-       txtgia1.setText("");
+        txtTenDichVu.setText("");
+        txtgia1.setText("");
     }
 
     void insert() {
-        if(checkForm() == false)
-            return;
+
         DichVu dv = getForm();
         dichVuDao.insert(dv);
         this.filltable();
         this.clearFrom();
-      
+
     }
-     public DichVu getFormUpdate() {
+
+    public DichVu getFormUpdate() {
         DichVu dv = new DichVu();
         LoaiDichVu dv2 = (LoaiDichVu) cbo_LoaiDV.getSelectedItem();
         dv.setTenDV(txtTenDichVu.getText());
@@ -479,18 +486,20 @@ public class DichVuUI extends javax.swing.JFrame {
         dv.setMaDV(list.get(index).getMaDV());
         return dv;
     }
-   public void update() {
-        if(checkForm() == false)
+
+    public void update() {
+        if (checkForm() == false) {
             return;
+        }
         DichVu dv = getFormUpdate();
         dichVuDao.update(dv);
         this.filltable();
     }
 
-   public void delete() {
-       int maDV = Integer.parseInt( tbl_DichVu.getValueAt(index,0).toString());
-       dichVuDao.delete(maDV);
-       filltable();
+    public void delete() {
+        int maDV = Integer.parseInt(tbl_DichVu.getValueAt(index, 0).toString());
+        dichVuDao.delete(maDV);
+        filltable();
     }
 
 }

@@ -5,16 +5,13 @@
 package com.UI;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  *
@@ -25,16 +22,20 @@ public class MenuItem extends javax.swing.JPanel {
     ActionListener act;
     ArrayList<MenuItem> list = new ArrayList<>();
 
-    
-
     public ArrayList<MenuItem> getList() {
         return list;
     }
-    public MenuItem(){
-        
+
+    public MenuItem() {
+
     }
-    public MenuItem(ImageIcon icon,String menuName, ActionListener act, MenuItem... menu) {
+
+    public MenuItem(ImageIcon icon, String menuName, ActionListener act, MenuItem... menu) {
         initComponents();
+         setOpaque(false);
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        setBackground(background);
+        setForeground(Color.WHITE);
         this.setVisible(true);
         lblName.setText(menuName);
         lblIcon.setIcon(icon);
@@ -62,24 +63,24 @@ public class MenuItem extends javax.swing.JPanel {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-             show = false;
+                show = false;
             }
         }).start();
     }
-    
+
     public void hideMenu() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    for (int i = list.size() -1; i >=0; i--) {
+                    for (int i = list.size() - 1; i >= 0; i--) {
                         Thread.sleep(20);
                         list.get(i).setVisible(false);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-              show = true;
+                show = true;
             }
         }).start();
     }
@@ -108,8 +109,17 @@ public class MenuItem extends javax.swing.JPanel {
         setBackground(new java.awt.Color(0, 158, 250));
         setForeground(new java.awt.Color(255, 255, 255));
         addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                formMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                formMouseExited(evt);
+            }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 formMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
             }
         });
 
@@ -141,16 +151,66 @@ public class MenuItem extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     boolean show = true;
     private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
-       if(show == true){
-           showMenu();
-       }else{
-           hideMenu();
-       }
-       if(act!=null)
-           act.actionPerformed(null);
+        if (show == true) {
+            showMenu();
+        } else {
+            hideMenu();
+        }
+        if (act != null) {
+            act.actionPerformed(null);
+        }
+        MenuItem.super.setBackground(getColorPressed());
     }//GEN-LAST:event_formMousePressed
+    private Color background = new Color(69, 191, 71);
+    private Color colorHover = new Color(1, 0, 0, 15);
+    private Color colorPressed = new Color(1, 0, 0, 15);
+    private boolean mouseOver = false;
 
- 
+    @Override
+    public void setBackground(Color bg) {
+        background = bg;
+        super.setBackground(bg);
+    }
+
+    public Color getColorHover() {
+        return colorHover;
+    }
+
+    public void setColorHover(Color colorHover) {
+        this.colorHover = colorHover;
+    }
+
+    public Color getColorPressed() {
+        return colorPressed;
+    }
+
+    public void setColorPressed(Color colorPressed) {
+        this.colorPressed = colorPressed;
+    }
+
+    private void formMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseEntered
+        mouseOver = true;
+        MenuItem.super.setBackground(getColorHover());
+    }//GEN-LAST:event_formMouseEntered
+
+    private void formMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseExited
+        mouseOver = false;
+        MenuItem.super.setBackground(background);
+    }//GEN-LAST:event_formMouseExited
+
+    private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
+        if (mouseOver) {
+            MenuItem.super.setBackground(getColorHover());
+        } else {
+            MenuItem.super.setBackground(background);
+        }
+    }//GEN-LAST:event_formMouseReleased
+    protected void paintComponent(Graphics g) {
+        g.setColor(getBackground());
+        g.fillRect(0, 0, getWidth(), getHeight());
+        super.paintComponent(g);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JInternalFrame jInternalFrame1;
     private javax.swing.JLabel lblIcon;

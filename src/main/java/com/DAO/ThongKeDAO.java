@@ -17,13 +17,13 @@ import java.util.List;
 public class ThongKeDAO {
     public List<Object[]> doanhThu(Date min,Date max){
         String sql = "{call doanhthu(?,?)}";
-        String cols[] ={"sokh","thanhtien"}; 
-        return getListOfArray(sql, cols,min,max);
+        String cols[] ={"sokh","thanhtien","thoigian"}; 
+        return getListOfArray(sql,cols,min,max);
     }
     public List<Object[]> tkkhachhang(Date min,Date max){
         String sql = "{call tkkhachhang(?,?)}";
         String cols[]={"tenkhach","sodt","cmnd","solan","songay"};
-        return getListOfArray(sql, cols,min,max);
+        return getListOfArray(sql,cols,min,max);
     }
     private List<Object[]> getListOfArray(String sql,String[] cols,Object...args){
         try{

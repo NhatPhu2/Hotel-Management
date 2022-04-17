@@ -15,18 +15,19 @@ public class HoaDon {
     private String cmnd;
     private String maKM;
     private String maNV;
-    private int maThue;
+    private Integer maThue;
     private Date ngayLap;
     private Date ngayXuat;
     private int sodv;
     private String soPhong;
     private double thanhTien;
     private int soNgay;
+    private String tinhTrang;
 
     public HoaDon() {
     }
 
-    public HoaDon(Integer maHD, String cmnd, String maKM, String maNV, int maThue, Date ngayLap, Date ngayXuat, int sodv, String soPhong, double thanhTien, int soNgay) {
+    public HoaDon(Integer maHD, String cmnd, String maKM, String maNV, Integer maThue, Date ngayLap, Date ngayXuat, int sodv, String soPhong, double thanhTien, int soNgay, String tinhTrang) {
         this.maHD = maHD;
         this.cmnd = cmnd;
         this.maKM = maKM;
@@ -38,6 +39,25 @@ public class HoaDon {
         this.soPhong = soPhong;
         this.thanhTien = thanhTien;
         this.soNgay = soNgay;
+        this.tinhTrang = tinhTrang;
+    }
+
+    public Integer getMaThue() {
+        return maThue;
+    }
+
+    public void setMaThue(Integer maThue) {
+        this.maThue = maThue;
+    }
+
+   
+
+    public String getTinhTrang() {
+        return tinhTrang;
+    }
+
+    public void setTinhTrang(String tinhTrang) {
+        this.tinhTrang = tinhTrang;
     }
 
     public int getSoNgay() {
@@ -82,13 +102,7 @@ public class HoaDon {
         this.maNV = maNV;
     }
 
-    public int getMaThue() {
-        return maThue;
-    }
-
-    public void setMaThue(int maThue) {
-        this.maThue = maThue;
-    }
+    
 
     public Date getNgayLap() {
         return ngayLap;

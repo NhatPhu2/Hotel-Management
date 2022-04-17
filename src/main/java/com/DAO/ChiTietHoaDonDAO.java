@@ -75,5 +75,10 @@ public class ChiTietHoaDonDAO extends QLKSDAO<ChiTietHoaDon, Integer> {
        hd.setNgaySuDung(rs.getDate("ngaysudung"));
         return hd;
     }
+     
+     public List<ChiTietHoaDon> selectByHoaDon(Integer mahd){
+         String sql = "select * from chitiethd where mahd = ?";
+         return selectBySql(sql,mahd);
+     }
 
 }

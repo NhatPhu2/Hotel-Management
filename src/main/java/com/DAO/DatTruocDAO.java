@@ -48,6 +48,17 @@ public class DatTruocDAO extends QLKSDAO<DatTruoc, Integer> {
                 model.getMaDT()
         );
     }
+    
+    
+    
+    public DatTruoc selectMaDT(String soPhong){
+        String sql = "select * from datTruoc join khachHang on khachHang.cmnd = datTruoc.cmnd \n" +
+"			join phong on phong.soPhong = datTruoc.soPhong\n" +
+"			where datTruoc.soPhong = ? and datTruoc.tinhtrang = N'Đã nhận phòng'";
+        List<DatTruoc> list = selectBySql(sql,soPhong);
+        return list.size() > 0 ? list.get(0) : null;
+    }
+    
 
     @Override
     public void delete(Integer maDT) {

@@ -143,7 +143,7 @@ public class ThuePhongDAO extends QLKSDAO<ThuePhong, Integer> {
      
      public List<Object[]> tenDichVu(int maThue){
          String sql = "{call tendichvu(?)}";
-        String cols[] ={"tendv","gia","soluong"} ;
+        String cols[] ={"tendv","gia","soluong","ngaysudung"} ;
          return getListOfArray(sql,cols,maThue);
      }
      private List<Object[]> getListOfArray(String sql,String[] cols,Object...args){

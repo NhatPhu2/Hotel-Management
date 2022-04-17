@@ -5,50 +5,50 @@
 package com.UI;
 
 import com.DAO.DatTruocDAO;
+import com.DAO.HoaDonDAO;
 import com.DAO.LoaiPhongDAO;
 import com.DAO.PhongDAO;
 import com.Entity.DatTruoc;
+import com.Entity.HoaDon;
 import com.Entity.LoaiPhong;
 import com.Entity.Phong;
 import com.Entity.ThuePhong;
 import com.utils.Auth;
+import com.utils.ButtonCustom;
 import com.utils.MsgBox;
 import com.utils.XDate;
 import java.awt.BorderLayout;
 import java.awt.Color;
-
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
+
 
 /**
  *
  * @author Admin
  */
-public class MainForm extends javax.swing.JFrame {
+public class MainForm extends javax.swing.JFrame{
 
     PhongDAO pDao = new PhongDAO();
     LoaiPhongDAO lDao = new LoaiPhongDAO();
     DatTruocDAO dtDao = new DatTruocDAO();
     List<Phong> list = pDao.selectAll();
     List<DatTruoc> listDatTruoc = dtDao.selectAll();
+    HoaDonDAO hdDao = new HoaDonDAO();
     int size = list.size();
     List<JLabel> soPhong = new ArrayList<>();
     List<JLabel> loai = new ArrayList<>();
-    List<JButton> tonghop = new ArrayList<>();
+    List<ButtonCustom> button = new ArrayList<>();
     List<JLabel> image = new ArrayList<>();
     long millis = System.currentTimeMillis();
     Date date = new Date(millis);
@@ -62,16 +62,82 @@ public class MainForm extends javax.swing.JFrame {
         fillDatTruoc();
         fillStatus();
         action();
+        datTruocQuaHan();
+        themHĐatTruocQuaHan();
+        fillPhong();
         getContentPane().setBackground(Color.white);
         PanelExit.setBackground(new Color(51, 0, 51));
         lblNameNV.setText(Auth.user.getHoTen());
+
+    }
+    
+    
+    
+    //thông báo
+    public void notification(MsgBox.Type type, String message) {
+        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
+        panel.showNotification();
+    }
+    
+    //thanh toán các phòng đặt trước đã hủy bỏ
+    public void themHĐatTruocQuaHan() {
+        HoaDon hd = new HoaDon();
+        for (int i = 0; i < listDatTruoc.size(); i++) {
+            DatTruoc dt = listDatTruoc.get(i);
+            if (dt.getTinhTrang().equalsIgnoreCase("Quá hạn")) {
+               
+                hd.setCmnd(dt.getCmnd());
+                hd.setMaKM(null);
+                hd.setMaNV(Auth.user.getMaNV());
+                hd.setNgayXuat(date);
+                hd.setThanhTien(dt.getTienDatCoc());
+                hd.setSoPhong(dt.getSoPhong());
+                hd.setSoNgay(0);
+                hd.setSodv(0);
+                hd.setNgayLap(dt.getNgayNhanPhong());
+                hd.setMaThue(null);
+                hd.setTinhTrang("Đã thanh toán");
+                hdDao.insert(hd);
+                
+                DatTruoc d = new DatTruoc();
+                d.setMaDT(dt.getMaDT());
+                d.setTinhTrang("Đã hủy");
+                dtDao.updateStatus(d);
+                
+            }
+        }
+
+    }
+    
+    //cập nhật các phòng đặt trước quá hạn
+    public void datTruocQuaHan() {
+
+        for (int i = 0; i < listDatTruoc.size(); i++) {
+            DatTruoc d = listDatTruoc.get(i);
+            java.sql.Date sqlDate = new java.sql.Date(d.getNgayNhanPhong().getTime());
+            if (XDate.toString(sqlDate, "yyyy-MM-dd").compareTo(XDate.toString(date, "yyyy-MM-dd")) == -1
+                    && d.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                DatTruoc dt = new DatTruoc();
+                dt.setMaDT(d.getMaDT());
+                dt.setTinhTrang("Quá hạn");
+                dtDao.updateStatus(dt);
+
+                Phong pp = new Phong();
+                pp.setSoPhong(d.getSoPhong());
+                pp.setTinhTrang("Trống");
+                pDao.updateTrangThaiPhong(pp);
+
+            }
+        }
+
     }
 
+    //sự kiện button
     public void action() {
 
-        for (int i = 0; i < tonghop.size(); i++) {
+        for (int i = 0; i < button.size(); i++) {
             int index = i;
-            tonghop.get(i).addActionListener(new ActionListener() {
+            button.get(i).addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -83,6 +149,8 @@ public class MainForm extends javax.swing.JFrame {
                         ThuePhongUI t = new ThuePhongUI();
                         t.cbo_LoaiPhong.getModel().setSelectedItem(loaiList.get(0));
                         t.cbo_SoPhong.getModel().setSelectedItem(p);
+                        t.cbo_LoaiPhong.setEnabled(false);
+                        t.cbo_SoPhong.setEnabled(false);
                         t.btn_ThemPhong.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
@@ -90,9 +158,10 @@ public class MainForm extends javax.swing.JFrame {
 
                                 } else {
                                     t.add();
-                                     fillDatTruoc();
+                                    notification(MsgBox.Type.SUCCESS, "Thuê phòng thành công");
+                                    fillDatTruoc();
                                     refresh();
-                                    MsgBox.alert(t, "Thêm thành công");
+
                                     t.dispose();
                                 }
 
@@ -103,11 +172,11 @@ public class MainForm extends javax.swing.JFrame {
 
                     } else if (data.equalsIgnoreCase("trả phòng")) {
                         TraPhongUI t = new TraPhongUI();
-
                         for (int i = 0; i < t.listThuePhong.size(); i++) {
                             ThuePhong tt = t.listThuePhong.get(i);
                             if (tt.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText())) {
                                 t.tbl_CheckOut.setRowSelectionInterval(i, i);
+                                t.setFormHoaDon();
                                 break;
                             }
                         }
@@ -116,11 +185,11 @@ public class MainForm extends javax.swing.JFrame {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 if (t.index == -1) {
-                                    MsgBox.alert(t, "Bạn chưa chọn phòng để thanh toán");
+                                    notification(MsgBox.Type.WARNING, "Bạn chưa chọn phòng để thanh toán");
                                     return;
                                 }
                                 t.traPhong();
-                               
+                                notification(MsgBox.Type.SUCCESS, "Thanh toán thành công");
                                 refresh();
                                 t.dispose();
                             }
@@ -150,15 +219,15 @@ public class MainForm extends javax.swing.JFrame {
                                 }
                             }
                         });
-                        
-                        dt.trangThai.addActionListener(new ActionListener(){
+
+                        dt.trangThai.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 dt.datTruoc();
                                 refresh();
                                 dt.dispose();
                             }
-                            
+
                         });
 
                         dt.setVisible(true);
@@ -178,6 +247,10 @@ public class MainForm extends javax.swing.JFrame {
         }
 
     }
+    private Color background = new Color(69, 191, 71);
+    private Color colorHover = new Color(76, 206, 78);
+    private Color colorPressed = new Color(63, 175, 65);
+    private boolean mouseOver = false;
 
     public void fillPhong() {
 
@@ -203,26 +276,27 @@ public class MainForm extends javax.swing.JFrame {
             loai.get(i).setHorizontalAlignment(JLabel.CENTER);
             loai.get(i).setVerticalTextPosition(JLabel.CENTER);
 
-            //tonghop
-            tonghop.add(new JButton());
-            tonghop.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
-            tonghop.get(i).setBorder(null);
-            tonghop.get(i).setBackground(Color.white);
-            tonghop.get(i).setFocusable(false);
-            tonghop.get(i).setHorizontalAlignment(JLabel.CENTER);
-            tonghop.get(i).setVerticalTextPosition(JLabel.CENTER);
-            tonghop.get(i).setCursor(new Cursor(HAND_CURSOR));
+            //button
+            button.add(new ButtonCustom());
+            button.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
+            button.get(i).setBorder(null);
+            button.get(i).setBackground(Color.white);
+            button.get(i).setForeground(Color.BLACK);
+            button.get(i).setFocusable(false);
+            button.get(i).setHorizontalAlignment(JLabel.CENTER);
+            button.get(i).setVerticalTextPosition(JLabel.CENTER);
+            button.get(i).setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             //hình
             image.add(new JLabel());
             image.get(i).setLayout(new BorderLayout());
             image.get(i).setHorizontalAlignment(JLabel.CENTER);
             image.get(i).setVerticalTextPosition(JLabel.CENTER);
-            image.get(i).setPreferredSize(new Dimension(120, 162));
+            image.get(i).setPreferredSize(new Dimension(150, 162));
 
             image.get(i).add(soPhong.get(i), BorderLayout.NORTH);
             image.get(i).add(loai.get(i), BorderLayout.CENTER);
-            image.get(i).add(tonghop.get(i), BorderLayout.SOUTH);
+            image.get(i).add(button.get(i), BorderLayout.SOUTH);
             pnlPhong.add(image.get(i));
         }
 
@@ -253,16 +327,16 @@ public class MainForm extends javax.swing.JFrame {
             if (p.getTinhTrang().equalsIgnoreCase("trống")) {
 
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/door1.png")));
-                tonghop.get(i).setText("Thuê phòng");
+                button.get(i).setText("Thuê phòng");
             } else if (p.getTinhTrang().equalsIgnoreCase("đã có người")) {
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/door.png")));
-                tonghop.get(i).setText("Trả phòng");
+                button.get(i).setText("Trả phòng");
             } else if (p.getTinhTrang().equalsIgnoreCase("đã đặt trước")) {
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/reserved.png")));
-                tonghop.get(i).setText("Đã có người đặt trước");
+                button.get(i).setText("Đã có người đặt trước");
             } else {
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/broom.png")));
-                tonghop.get(i).setText("Đang dọn dẹp");
+                button.get(i).setText("Đang dọn dẹp");
             }
         }
     }
@@ -289,7 +363,7 @@ public class MainForm extends javax.swing.JFrame {
         image.clear();
         loai.clear();
         soPhong.clear();
-        tonghop.clear();
+        button.clear();
         pnlPhong.removeAll();
         pnlPhong.repaint();
         list = pDao.selectAll();
@@ -309,12 +383,6 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
 
-        MenuItem thongT = new MenuItem(null, "    Thông tin phòng", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ThongKe().setVisible(true);
-            }
-        });
         MenuItem qlP = new MenuItem(null, "    Quản lý phòng", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -403,7 +471,7 @@ public class MainForm extends javax.swing.JFrame {
             }
 
         });
-        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, thongT, dattruoc);
+        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, dattruoc);
 
         MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.png")), "Quản lý nhân viên", new ActionListener() {
             @Override
@@ -486,7 +554,7 @@ public class MainForm extends javax.swing.JFrame {
                 pnlPhongKeyReleased(evt);
             }
         });
-        pnlPhong.setLayout(new java.awt.GridLayout(0, 5, 15, 15));
+        pnlPhong.setLayout(new java.awt.GridLayout(0, 4, 15, 15));
         jScrollPane1.setViewportView(pnlPhong);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -495,6 +563,7 @@ public class MainForm extends javax.swing.JFrame {
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 23, 710, -1));
 
+        PanelExit.setBackground(new java.awt.Color(51, 51, 51));
         PanelExit.setLayout(null);
 
         lblThuLai.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -527,7 +596,7 @@ public class MainForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lblKetThucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKetThucMouseClicked
-        // TODO add your handling code here:
+
         System.exit(0);
     }//GEN-LAST:event_lblKetThucMouseClicked
 
@@ -543,7 +612,27 @@ public class MainForm extends javax.swing.JFrame {
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+        /* If 
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {

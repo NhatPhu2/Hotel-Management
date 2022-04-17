@@ -5,7 +5,6 @@
 package com.UI;
 
 import com.DAO.DatTruocDAO;
-import com.DAO.DichVuDAO;
 import com.DAO.HoaDonDAO;
 import com.DAO.KhachHangDAO;
 import com.DAO.LoaiPhongDAO;
@@ -14,7 +13,6 @@ import com.DAO.ThuePhongDAO;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import com.Entity.DichVu;
 import com.Entity.KhachHang;
 import com.Entity.LoaiPhong;
 import com.Entity.Phong;
@@ -198,6 +196,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
         hd.setNgayXuat(null);
         hd.setThanhTien(0);
         hd.setSoNgay(0);
+        hd.setTinhTrang("Chưa thanh toán");
         return hd;
 
     }
@@ -657,8 +656,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_NewActionPerformed
 
     private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
-        // TODO add your handling code here:
-        add();
+      
     }//GEN-LAST:event_btn_ThemPhongActionPerformed
 
     public static void main(String args[]) {
