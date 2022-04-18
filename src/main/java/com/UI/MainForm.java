@@ -32,12 +32,11 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-
 /**
  *
  * @author Admin
  */
-public class MainForm extends javax.swing.JFrame{
+public class MainForm extends javax.swing.JFrame {
 
     PhongDAO pDao = new PhongDAO();
     LoaiPhongDAO lDao = new LoaiPhongDAO();
@@ -64,28 +63,26 @@ public class MainForm extends javax.swing.JFrame{
         action();
         datTruocQuaHan();
         themHĐatTruocQuaHan();
-        fillPhong();
+
         getContentPane().setBackground(Color.white);
         PanelExit.setBackground(new Color(51, 0, 51));
         lblNameNV.setText(Auth.user.getHoTen());
 
     }
-    
-    
-    
+
     //thông báo
     public void notification(MsgBox.Type type, String message) {
         MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
         panel.showNotification();
     }
-    
+
     //thanh toán các phòng đặt trước đã hủy bỏ
     public void themHĐatTruocQuaHan() {
         HoaDon hd = new HoaDon();
         for (int i = 0; i < listDatTruoc.size(); i++) {
             DatTruoc dt = listDatTruoc.get(i);
             if (dt.getTinhTrang().equalsIgnoreCase("Quá hạn")) {
-               
+
                 hd.setCmnd(dt.getCmnd());
                 hd.setMaKM(null);
                 hd.setMaNV(Auth.user.getMaNV());
@@ -98,17 +95,17 @@ public class MainForm extends javax.swing.JFrame{
                 hd.setMaThue(null);
                 hd.setTinhTrang("Đã thanh toán");
                 hdDao.insert(hd);
-                
+
                 DatTruoc d = new DatTruoc();
                 d.setMaDT(dt.getMaDT());
                 d.setTinhTrang("Đã hủy");
                 dtDao.updateStatus(d);
-                
+
             }
         }
 
     }
-    
+
     //cập nhật các phòng đặt trước quá hạn
     public void datTruocQuaHan() {
 
@@ -471,7 +468,29 @@ public class MainForm extends javax.swing.JFrame{
             }
 
         });
-        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, dattruoc);
+        MenuItem thue = new MenuItem(null, "     Thuê phòng", new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ThuePhongUI t = new ThuePhongUI();
+                t.btn_ThemPhong.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (t.checkForm() == false) {
+
+                        } else {
+                            t.add();
+                            notification(MsgBox.Type.SUCCESS, "Thuê phòng thành công");
+                            fillDatTruoc();
+                            refresh();
+                            t.dispose();
+                        }
+                    }
+
+                });
+
+            }
+        });
+        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, dattruoc, thue);
 
         MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.png")), "Quản lý nhân viên", new ActionListener() {
             @Override

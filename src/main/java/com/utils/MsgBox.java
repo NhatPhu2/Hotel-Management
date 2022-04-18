@@ -31,6 +31,7 @@ public class MsgBox extends javax.swing.JComponent {
     }
     
     public MsgBox(Frame fram, Type type, Location location, String message) {
+        this.setVisible(true);
         this.fram = fram;
         this.type = type;
         this.location = location;

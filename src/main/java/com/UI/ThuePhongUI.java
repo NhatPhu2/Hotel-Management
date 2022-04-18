@@ -225,14 +225,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
             }
         }
         
-         List<DatTruoc> listDatTruoc = dtDao.selectAll();
-         for(int i =0 ;i<listDatTruoc.size() ; i ++){ //kiểm tra khách hàng đã từng đến KS
-            DatTruoc dt = listDatTruoc.get(i);
-            if(date.equals(dt.getNgayNhanPhong()) && dt.getSoPhong().equals(p.getSoPhong())){
-                MsgBox.alert(this,"Phòng này đã có người đặt trước rồi");
-                return;
-            }
-        }
+         
         
         if(check == true)    
         khDao.insert(getValueKhachHang());
