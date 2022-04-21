@@ -148,10 +148,10 @@ public class HoaDonDAO extends QLKSDAO<HoaDon, Integer> {
         return i;
     }
     
-    public List<Object[]> tenDichVu(int maThue){
+    public List<Object[]> tenDichVu(int mahd){
          String sql = "{call tendichvuhd(?)}";
-        String cols[] ={"tendv","gia","soluong"} ;
-         return getListOfArray(sql,cols,maThue);
+        String cols[] ={"tendv","gia","soluong","ngaysudung"} ;
+         return getListOfArray(sql,cols,mahd);
      }
     
     public List<HoaDon> selectByCmnd(String cmnd){

@@ -12,16 +12,17 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
-
+import java.awt.Image;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 
 /**
  *
@@ -29,14 +30,13 @@ import javax.swing.JPanel;
  */
 public class ChonDichVu extends javax.swing.JFrame {
 
-    
     public ChonDichVu() {
         initComponents();
         this.setVisible(true);
         fillComboboxDichVu();
         fill();
         this.setLocationRelativeTo(null);
-       
+
     }
 
     LoaiDichVuDAO loaiDichVuDao = new LoaiDichVuDAO();
@@ -45,6 +45,7 @@ public class ChonDichVu extends javax.swing.JFrame {
     List<DichVu> listDichVu = dichVuDao.selectAll();
     List<JLabel> listLblGia = new ArrayList<>();
     List<JLabel> listLblTen = new ArrayList<>();
+    List<JLabel> listLblHinh = new ArrayList<>();
     List<LoaiDichVu> listLoaiDichVu = loaiDichVuDao.selectAll();
     NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
 
@@ -167,31 +168,30 @@ public class ChonDichVu extends javax.swing.JFrame {
     }//GEN-LAST:event_txtTimKiemKeyReleased
 
     private void cbo_LoaiDichVuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LoaiDichVuActionPerformed
-       
-        
+
+
     }//GEN-LAST:event_cbo_LoaiDichVuActionPerformed
 
     private void jLabel1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MousePressed
         this.dispose();
     }//GEN-LAST:event_jLabel1MousePressed
-    
-    public void clearList(){
-         listLblTen.clear();
+
+    public void clearList() {
+        listLblTen.clear();
         listLblGia.clear();
         listPnlMon.clear();
+        listLblHinh.clear();
         jPanel2.removeAll();
         jPanel2.repaint();
-        
+
     }
-    
+
     public void fillTypeOfService() {
-        
+
         LoaiDichVu dv = (LoaiDichVu) cbo_LoaiDichVu.getSelectedItem();
         listDichVu = dichVuDao.selectTypeOfService(dv.getMaLoai());
         fill();
     }
-
-   
 
     public void fill() {
 
@@ -210,25 +210,42 @@ public class ChonDichVu extends javax.swing.JFrame {
             listLblGia.get(i).setText(nf.format(listDichVu.get(i).getGia()) + "" + "(VNĐ)");
             listLblGia.get(i).setHorizontalAlignment(JLabel.CENTER);
             listLblGia.get(i).setVerticalTextPosition(JLabel.CENTER);
-            listLblGia.get(i).setFont(new Font("Verdana", Font.PLAIN, 13));
+            listLblGia.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
+            listLblGia.get(i).setForeground(Color.blue);
 
             //tên món
             listLblTen.add(new JLabel());
             listLblTen.get(i).setText(listDichVu.get(i).getTenDV());
             listLblTen.get(i).setHorizontalAlignment(JLabel.CENTER);
             listLblTen.get(i).setVerticalTextPosition(JLabel.CENTER);
-            listLblTen.get(i).setFont(new Font("Verdana", Font.PLAIN, 13));
+            listLblTen.get(i).setFont(new Font("Verdana", Font.BOLD, 13));
+            listLblTen.get(i).setForeground(Color.blue);
 
-            listPnlMon.get(i).add(listLblTen.get(i));
-            listPnlMon.get(i).add(listLblGia.get(i));
+            //hinh
+            listLblHinh.add(new JLabel());
+            listLblHinh.get(i).setHorizontalAlignment(JLabel.CENTER);
+            listLblHinh.get(i).setVerticalTextPosition(JLabel.CENTER);
+            ImageIcon myimage = new ImageIcon("src/main/java/image/"+ listDichVu.get(i).getHinh());
+            Image img = myimage.getImage();
+            ImageIcon icon = new ImageIcon(img.getScaledInstance(160, 160, Image.SCALE_SMOOTH));
+            listLblHinh.get(i).setIcon(icon);
+            listLblHinh.get(i).setLayout(new GridLayout(0,1,0,0));
+          
+            listLblHinh.get(i).add(listLblTen.get(i));
+            listLblHinh.get(i).add(listLblGia.get(i));
+            listPnlMon.get(i).add(listLblHinh.get(i));
+             
+            
             jPanel2.add(listPnlMon.get(i));
 
         }
         this.setVisible(true);
     }
 
+   
+
     public void fillAll() {
-        
+
         listDichVu = dichVuDao.selectAll();
         fill();
     }

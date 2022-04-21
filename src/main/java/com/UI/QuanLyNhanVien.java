@@ -7,6 +7,7 @@ package com.UI;
 
 import com.DAO.NhanVienDAO;
 import com.Entity.NhanVien;
+import com.utils.Auth;
 import com.utils.MsgBox;
 import com.utils.XDate;
 import java.awt.Color;
@@ -326,9 +327,9 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
                                 .addComponent(txteMail))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, kGradientPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addComponent(rdoNam, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(12, 12, 12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(rdoNu, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(kGradientPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -366,6 +367,10 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jLabel1, jLabel2, jLabel3, jLabel4, jLabel5, jLabel6, jLabel7, jLabel8, jLabel9});
 
         kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btn_New, btn_SuaNV, btn_ThemNV, btn_XoaNV2});
+
+        kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {rdoNam, rdoNu});
+
+        kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {rdo_NhanVien, rdo_QuanLy});
 
         kGradientPanel1Layout.setVerticalGroup(
             kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -437,13 +442,17 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 
         kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btn_New, btn_SuaNV, btn_ThemNV, btn_XoaNV2});
 
+        kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {rdoNam, rdoNu});
+
+        kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {rdo_NhanVien, rdo_QuanLy});
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(kGradientPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 1, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -499,7 +508,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             e.printStackTrace();
         }
 
-        this.delete();
+
     }//GEN-LAST:event_btn_XoaNV2ActionPerformed
 
     private void btn_SuaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_SuaNVActionPerformed
@@ -520,6 +529,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 
     private void btn_XoaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XoaNVActionPerformed
         // TODO add your handling code here:
+        this.delete();
     }//GEN-LAST:event_btn_XoaNVActionPerformed
 
     /**
@@ -606,6 +616,38 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         setTable();
         fillToTable();
         updateStatus();
+
+        row = 0;
+        this.edit();
+
+        PositionTest();
+
+    }
+
+    void PositionTest() {
+        if (!Auth.isManager()) {
+
+            btn_New.setEnabled(false);
+            btn_SuaNV.setEnabled(false);
+            btn_ThemNV.setEnabled(false);
+            btn_XoaNV.setEnabled(false);
+
+            rdoNam.setEnabled(false);
+            rdoNu.setEnabled(false);
+            rdo_NhanVien.setEnabled(false);
+            rdo_QuanLy.setEnabled(false);
+
+        } else {
+            btn_New.setEnabled(true);
+            btn_SuaNV.setEnabled(true);
+            btn_ThemNV.setEnabled(true);
+            btn_XoaNV.setEnabled(true);
+
+            rdoNam.setEnabled(true);
+            rdoNu.setEnabled(true);
+            rdo_NhanVien.setEnabled(true);
+            rdo_QuanLy.setEnabled(true);
+        }
     }
 
     private void setTable() {
@@ -720,7 +762,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         NhanVien nv = getForm();
 
         if (txtManv.getText().equals("")) {
-            MsgBox.warring(this, "Mã nhân viên không được để trống!");
+            MsgBox.alert(this, "Mã nhân viên không được để trống!");
             txtManv.requestFocus();
             txtManv.setBackground(Color.yellow);
             return;
@@ -728,7 +770,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtManv.setBackground(Color.white);
         }
         if (txthoTen.getText().equals("")) {
-            MsgBox.warring(this, "Họ và tên không được để trống!");;
+            MsgBox.alert(this, "Họ và tên không được để trống!");;
             txthoTen.requestFocus();
             txthoTen.setBackground(Color.yellow);
             return;
@@ -736,7 +778,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txthoTen.setBackground(Color.white);
         }
         if (txtdiaChi.getText().equals("")) {
-            MsgBox.warring(this, "Địa chỉ không được để trống!");
+            MsgBox.alert(this, "Địa chỉ không được để trống!");
             txtdiaChi.requestFocus();
             txtdiaChi.setBackground(Color.yellow);
             return;
@@ -744,7 +786,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtdiaChi.setBackground(Color.white);
         }
         if (txtSDT.getText().equals("")) {
-            MsgBox.warring(this, "Số ĐT không được để trống");
+            MsgBox.alert(this, "Số ĐT không được để trống");
             txtSDT.requestFocus();
             txtSDT.setBackground(Color.yellow);
             return;
@@ -753,7 +795,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         }
         String phone = "0\\d{9}";
         if (!txtSDT.getText().matches(phone)) {
-            MsgBox.warring(this, "Số ĐT không đúng định dạng");
+            MsgBox.alert(this, "Số ĐT không đúng định dạng");
             txtSDT.requestFocus();
             txtSDT.setBackground(Color.yellow);
             return;
@@ -761,7 +803,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtSDT.setBackground(Color.white);
         }
         if (txteMail.getText().equals("")) {
-            MsgBox.warring(this, "Email không được để trống!");;
+            MsgBox.alert(this, "Email không được để trống!");;
             txteMail.requestFocus();
             txteMail.setBackground(Color.yellow);
             return;
@@ -771,7 +813,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 //        st.Email = txtEmail.getText();
         String Email = "\\w+@\\w+(\\.\\w+){1,2}";
         if (!txteMail.getText().matches(Email)) {
-            MsgBox.warring(this, "Email không đúng định dạng!");
+            MsgBox.alert(this, "Email không đúng định dạng!");
             txteMail.requestFocus();
             txteMail.setBackground(Color.yellow);
             return;
@@ -779,7 +821,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txteMail.setBackground(Color.white);
         }
         if (txtmatKhau.getText().equals("")) {
-            MsgBox.warring(this, "Mật khẩu không được để trống");
+            MsgBox.alert(this, "Mật khẩu không được để trống");
             txtmatKhau.requestFocus();
             txtmatKhau.setBackground(Color.yellow);
             return;
@@ -788,6 +830,10 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 
         }
 
+        if (!Auth.isManager()) {
+            MsgBox.alert(this, "Bạn không có quyền thêm nhân viên!");
+            return;
+        }
         try {
 
             dao.insert(nv);
@@ -801,17 +847,21 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 
     public void delete() {
 
-        String maNV = txtManv.getText();
-        if (MsgBox.confirm(this, "Bạn có chắc muốn xóa ?")) {
-            try {
-                dao.delete(maNV);
-                this.fillToTable();
-                this.clearForm();
-                settext();
-                MsgBox.alert(this, "Xóa thành công!");
-                settext();
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (!Auth.isManager()) {
+            MsgBox.alert(this, "Bạn không có quyền xóa nhân viên!");
+        } else {
+            String manv = txtManv.getText();
+            if (manv.equals(Auth.user.getMaNV())) {
+                MsgBox.alert(this, "Bạn không thể xóa chính bạn!");
+            } else if (MsgBox.confirm(this, "Bạn muốn xóa nhân viên này?")) {
+                try {
+                    dao.delete(manv);
+                    this.fillToTable();
+                    this.clearForm();
+                    MsgBox.alert(this, "Xóa thành công!");
+                } catch (Exception e) {
+                    MsgBox.alert(this, "Xóa thất bại!");
+                }
             }
         }
 
@@ -822,7 +872,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         NhanVien lp = getForm();
 
         if (txtManv.getText().equals("")) {
-            MsgBox.warring(this, "Mã nhân viên không được để trống!");
+            MsgBox.alert(this, "Mã nhân viên không được để trống!");
             txtManv.requestFocus();
             txtManv.setBackground(Color.yellow);
             return;
@@ -830,7 +880,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtManv.setBackground(Color.white);
         }
         if (txthoTen.getText().equals("")) {
-            MsgBox.warring(this, "Họ và tên không được để trống!");;
+            MsgBox.alert(this, "Họ và tên không được để trống!");;
             txthoTen.requestFocus();
             txthoTen.setBackground(Color.yellow);
             return;
@@ -838,7 +888,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txthoTen.setBackground(Color.white);
         }
         if (txtdiaChi.getText().equals("")) {
-            MsgBox.warring(this, "Địa chỉ không được để trống!");
+            MsgBox.alert(this, "Địa chỉ không được để trống!");
             txtdiaChi.requestFocus();
             txtdiaChi.setBackground(Color.yellow);
             return;
@@ -846,7 +896,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtdiaChi.setBackground(Color.white);
         }
         if (txtSDT.getText().equals("")) {
-            MsgBox.warring(this, "Số ĐT không được để trống");
+            MsgBox.alert(this, "Số ĐT không được để trống");
             txtSDT.requestFocus();
             txtSDT.setBackground(Color.yellow);
             return;
@@ -855,7 +905,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         }
         String phone = "0\\d{9}";
         if (!txtSDT.getText().matches(phone)) {
-            MsgBox.warring(this, "Số ĐT không đúng định dạng");
+            MsgBox.alert(this, "Số ĐT không đúng định dạng");
             txtSDT.requestFocus();
             txtSDT.setBackground(Color.yellow);
             return;
@@ -863,7 +913,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txtSDT.setBackground(Color.white);
         }
         if (txteMail.getText().equals("")) {
-            MsgBox.warring(this, "Email không được để trống!");;
+            MsgBox.alert(this, "Email không được để trống!");;
             txteMail.requestFocus();
             txteMail.setBackground(Color.yellow);
             return;
@@ -873,7 +923,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
 //        st.Email = txtEmail.getText();
         String Email = "\\w+@\\w+(\\.\\w+){1,2}";
         if (!txteMail.getText().matches(Email)) {
-            MsgBox.warring(this, "Email không đúng định dạng!");
+            MsgBox.alert(this, "Email không đúng định dạng!");
             txteMail.requestFocus();
             txteMail.setBackground(Color.yellow);
             return;
@@ -881,12 +931,17 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             txteMail.setBackground(Color.white);
         }
         if (txtmatKhau.getText().equals("")) {
-            MsgBox.warring(this, "Mật khẩu không được để trống");
+            MsgBox.alert(this, "Mật khẩu không được để trống");
             txtmatKhau.requestFocus();
             txtmatKhau.setBackground(Color.yellow);
             return;
         } else {
             txtmatKhau.setBackground(Color.white);
+        }
+
+        if (!Auth.isManager()) {
+            MsgBox.alert(this, "Bạn không có quyền sửa nhân viên!");
+            return;
         }
 
         try {
@@ -911,9 +966,9 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         boolean firstRoom = (this.row == 0);
         boolean lastRoom = (this.row == tbl_NhanVien.getRowCount() - 1);
 
-        btn_ThemNV.setEnabled(editRoom);
+        btn_ThemNV.setEnabled(!editRoom);
         btn_SuaNV.setEnabled(editRoom);
-        btn_XoaNV2.setEnabled(editRoom);
+        btn_XoaNV.setEnabled(editRoom);
 
     }
 

@@ -41,10 +41,10 @@ public class MainForm extends javax.swing.JFrame {
     PhongDAO pDao = new PhongDAO();
     LoaiPhongDAO lDao = new LoaiPhongDAO();
     DatTruocDAO dtDao = new DatTruocDAO();
-    List<Phong> list = pDao.selectAll();
-    List<DatTruoc> listDatTruoc = dtDao.selectAll();
+    List<Phong> listPhong = pDao.selectAll();
+    List<DatTruoc> listPhongDatTruoc = dtDao.selectAll();
     HoaDonDAO hdDao = new HoaDonDAO();
-    int size = list.size();
+    int size = listPhong.size();
     List<JLabel> soPhong = new ArrayList<>();
     List<JLabel> loai = new ArrayList<>();
     List<ButtonCustom> button = new ArrayList<>();
@@ -56,8 +56,10 @@ public class MainForm extends javax.swing.JFrame {
         initComponents();
         this.setVisible(true);
         this.setLocationRelativeTo(null);
+
         execute();
         fillPhong();
+        soPhongTrong();
         fillDatTruoc();
         fillStatus();
         action();
@@ -70,17 +72,37 @@ public class MainForm extends javax.swing.JFrame {
 
     }
 
-    //thông báo
-    public void notification(MsgBox.Type type, String message) {
-        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
-        panel.showNotification();
+    public void soPhongTrong() {
+        pnlCart.removeAll();
+        pnlCart.repaint();
+        listPhong = pDao.selectAll();
+        int soPhongTrong = 0;
+        int phongDaThue = 0;
+        int donDep = 0;
+        for (int i = 0; i < listPhong.size(); i++) {
+            Phong p = listPhong.get(i);
+            if (p.getTinhTrang().equalsIgnoreCase("Trống")) {
+                soPhongTrong += 1;
+            } else if (p.getTinhTrang().equalsIgnoreCase("Đã có người")) {
+                phongDaThue += 1;
+            } else if (p.getTinhTrang().equalsIgnoreCase("Đang dọn dẹp")) {
+                donDep += 1;
+            }
+        }
+        Form_Cart c = new Form_Cart();
+        c.cart1.data(new Model_Cart(donDep + "", "Đang dọn dẹp"));
+        c.cart2.data(new Model_Cart(soPhongTrong + "", "Phòng Trống"));
+        c.cart3.data(new Model_Cart(phongDaThue + "", "Đã Thuê"));
+        pnlCart.add(c);
+        this.setVisible(true);
     }
 
+    //thông báo
     //thanh toán các phòng đặt trước đã hủy bỏ
     public void themHĐatTruocQuaHan() {
         HoaDon hd = new HoaDon();
-        for (int i = 0; i < listDatTruoc.size(); i++) {
-            DatTruoc dt = listDatTruoc.get(i);
+        for (int i = 0; i < listPhongDatTruoc.size(); i++) {
+            DatTruoc dt = listPhongDatTruoc.get(i);
             if (dt.getTinhTrang().equalsIgnoreCase("Quá hạn")) {
 
                 hd.setCmnd(dt.getCmnd());
@@ -109,8 +131,8 @@ public class MainForm extends javax.swing.JFrame {
     //cập nhật các phòng đặt trước quá hạn
     public void datTruocQuaHan() {
 
-        for (int i = 0; i < listDatTruoc.size(); i++) {
-            DatTruoc d = listDatTruoc.get(i);
+        for (int i = 0; i < listPhongDatTruoc.size(); i++) {
+            DatTruoc d = listPhongDatTruoc.get(i);
             java.sql.Date sqlDate = new java.sql.Date(d.getNgayNhanPhong().getTime());
             if (XDate.toString(sqlDate, "yyyy-MM-dd").compareTo(XDate.toString(date, "yyyy-MM-dd")) == -1
                     && d.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
@@ -134,126 +156,113 @@ public class MainForm extends javax.swing.JFrame {
 
         for (int i = 0; i < button.size(); i++) {
             int index = i;
-            button.get(i).addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String data = e.getActionCommand();
-                    int indexx = -1;
-                    if (data.equalsIgnoreCase("thuê phòng")) {
-                        List<LoaiPhong> loaiList = lDao.selectByKeyWord(soPhong.get(index).getText());
-                        Phong p = pDao.selectById(soPhong.get(index).getText());
-                        ThuePhongUI t = new ThuePhongUI();
-                        t.cbo_LoaiPhong.getModel().setSelectedItem(loaiList.get(0));
-                        t.cbo_SoPhong.getModel().setSelectedItem(p);
-                        t.cbo_LoaiPhong.setEnabled(false);
-                        t.cbo_SoPhong.setEnabled(false);
-                        t.btn_ThemPhong.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (t.checkForm() == false) {
+            button.get(i).addActionListener((ActionEvent e) -> {
+                String data = e.getActionCommand();
+                int indexx = -1;
+                if (data.equalsIgnoreCase("thuê phòng")) {
+                    ThuePhongUI t = new ThuePhongUI();
+                    t.setVisible(true);
+                    LoaiPhong loaiList = lDao.selectById(listPhong.get(index).getMaLP());
+                    Phong p = pDao.selectById(soPhong.get(index).getText());
+                    t.cbo_LoaiPhong.getModel().setSelectedItem(loaiList);
+                    t.cbo_SoPhong.getModel().setSelectedItem(p);
+                    t.cbo_LoaiPhong.setEnabled(false);
+                    t.cbo_SoPhong.setEnabled(false);
+                    t.btn_ThemPhong.addActionListener((ActionEvent e1) -> {
+                        if (t.checkForm() == false) {
 
-                                } else {
-                                    t.add();
-                                    notification(MsgBox.Type.SUCCESS, "Thuê phòng thành công");
-                                    fillDatTruoc();
-                                    refresh();
-
-                                    t.dispose();
-                                }
-
-                            }
-
-                        });
-                        t.setVisible(true);
-
-                    } else if (data.equalsIgnoreCase("trả phòng")) {
-                        TraPhongUI t = new TraPhongUI();
-                        for (int i = 0; i < t.listThuePhong.size(); i++) {
-                            ThuePhong tt = t.listThuePhong.get(i);
-                            if (tt.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText())) {
-                                t.tbl_CheckOut.setRowSelectionInterval(i, i);
-                                t.setFormHoaDon();
-                                break;
-                            }
-                        }
-
-                        t.btn_TraPhong.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                if (t.index == -1) {
-                                    notification(MsgBox.Type.WARNING, "Bạn chưa chọn phòng để thanh toán");
-                                    return;
-                                }
-                                t.traPhong();
-                                notification(MsgBox.Type.SUCCESS, "Thanh toán thành công");
-                                refresh();
-                                t.dispose();
-                            }
-
-                        });
-                        t.setVisible(true);
-                    } else if (data.equalsIgnoreCase("Đã có người đặt trước")) {
-                        DatTruocUI dt = new DatTruocUI();
-
-                        List<DatTruoc> listDT = dtDao.selectAll();
-
-                        for (int j = 0; j < listDT.size(); j++) {
-
-                            DatTruoc d = listDT.get(j);
-                            if (d.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText()) && d.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
-                                dt.tbl_DatTruoc.setRowSelectionInterval(j, j);
-                                break;
-                            }
-                        }
-                        dt.tbl_DatTruoc.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mouseReleased(MouseEvent e) {
-                                if (e.getButton() == MouseEvent.BUTTON3) {
-                                    if (e.isPopupTrigger() && dt.tbl_DatTruoc.getSelectedRowCount() != 0) {
-                                        dt.jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
-                                    }
-                                }
-                            }
-                        });
-
-                        dt.trangThai.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                dt.datTruoc();
-                                refresh();
-                                dt.dispose();
-                            }
-
-                        });
-
-                        dt.setVisible(true);
-                    } else {
-                        if (MsgBox.confirm(null, "Đã dọn dẹp xong ?")) {
-                            Phong p = new Phong();
-                            p.setSoPhong(soPhong.get(index).getText());
-                            p.setTinhTrang("Trống");
-                            pDao.updateTrangThaiPhong(p);
+                        } else {
+                            t.dispose();
+                            t.add();
+                            MsgBox.alert(this, "Thuê phòng thành công");
+                            fillDatTruoc();
                             refresh();
+                            soPhongTrong();
+
                         }
+                    });
+
+                } else if (data.equalsIgnoreCase("trả phòng")) {
+                    TraPhongUI t = new TraPhongUI();
+                    t.setVisible(true);
+                    for (int j = 0; j < t.listThuePhong.size(); j++) {
+                        ThuePhong tt = t.listThuePhong.get(j);
+                        if (tt.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText())) {
+                            t.tbl_CheckOut.setRowSelectionInterval(j, j);
+                            t.setFormHoaDon();
+                            break;
+                        }
+                    }
+                    t.btn_TraPhong.addActionListener((ActionEvent e1) -> {
+                        if (t.index == -1) {
+                            MsgBox.alert(this, "Bạn chưa chọn phòng để thanh toán");
+                            return;
+                        }
+                        t.dispose();
+                        t.traPhong();
+                        refresh();
+                        soPhongTrong();
+
+                    });
+
+                } else if (data.equalsIgnoreCase("Đã có người đặt trước")) {
+                    DatTruocUI dt = new DatTruocUI();
+                    dt.setVisible(true);
+                    List<DatTruoc> listPhongDT = dtDao.selectAll();
+
+                    for (int j = 0; j < listPhongDT.size(); j++) {
+
+                        DatTruoc d = listPhongDT.get(j);
+                        //set chọn phòng đã đặt trước
+                        if (d.getSoPhong().equalsIgnoreCase(soPhong.get(index).getText()) && d.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                            dt.tbl_DatTruoc.setRowSelectionInterval(j, j);
+                            break;
+                        }
+                    }
+                    //pop-up menu
+                    dt.tbl_DatTruoc.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseReleased(MouseEvent e) {
+                            if (e.getButton() == MouseEvent.BUTTON3) {
+                                if (e.isPopupTrigger() && dt.tbl_DatTruoc.getSelectedRowCount() != 0) {
+                                    dt.jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
+                                }
+                            }
+                        }
+                    });
+
+                    dt.trangThai.addActionListener((ActionEvent e1) -> {
+                        dt.datTruoc();
+                        listPhong = pDao.selectAll();
+                        fillStatus();
+                        soPhongTrong();
+                        dt.dispose();
+                    });
+
+                } else {
+                    if (MsgBox.confirm(null, "Đã dọn dẹp xong ?")) {
+                        Phong p = new Phong();
+                        p.setSoPhong(soPhong.get(index).getText());
+                        p.setTinhTrang("Trống");
+                        pDao.updateTrangThaiPhong(p);
+                        soPhongTrong();
+                        refresh();
 
                     }
+
                 }
             });
 
         }
 
     }
-    private Color background = new Color(69, 191, 71);
-    private Color colorHover = new Color(76, 206, 78);
-    private Color colorPressed = new Color(63, 175, 65);
-    private boolean mouseOver = false;
 
     public void fillPhong() {
 
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < listPhong.size(); i++) {
 
-            Phong p = list.get(i);
+            Phong p = listPhong.get(i);
 
             //text so phong
             soPhong.add(new JLabel());
@@ -300,10 +309,10 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     public void fillDatTruoc() {
-        List<DatTruoc> listDT = dtDao.selectAll();
-        for (int i = 0; i < list.size(); i++) {
-            for (int j = 0; j < listDT.size(); j++) {
-                DatTruoc dt = listDT.get(j);
+        List<DatTruoc> listPhongDT = dtDao.selectAll();
+        for (int i = 0; i < listPhong.size(); i++) {
+            for (int j = 0; j < listPhongDT.size(); j++) {
+                DatTruoc dt = listPhongDT.get(j);
                 java.sql.Date sqlDate = new java.sql.Date(dt.getNgayNhanPhong().getTime());
                 if (XDate.toString(sqlDate, "yyyy-MM-dd").equals(XDate.toString(date, "yyyy-MM-dd"))
                         && dt.getSoPhong().equalsIgnoreCase(soPhong.get(i).getText()) && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
@@ -319,8 +328,8 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     public void fillStatus() {
-        for (int i = 0; i < list.size(); i++) {
-            Phong p = list.get(i);
+        for (int i = 0; i < listPhong.size(); i++) {
+            Phong p = listPhong.get(i);
             if (p.getTinhTrang().equalsIgnoreCase("trống")) {
 
                 image.get(i).setIcon(new ImageIcon(getClass().getClassLoader().getResource("Images/door1.png")));
@@ -356,14 +365,14 @@ public class MainForm extends javax.swing.JFrame {
     }
 
     public void refresh() {
-        list.clear();
+        listPhong.clear();
         image.clear();
         loai.clear();
         soPhong.clear();
         button.clear();
         pnlPhong.removeAll();
         pnlPhong.repaint();
-        list = pDao.selectAll();
+        listPhong = pDao.selectAll();
         fillPhong();
         fillDatTruoc();
         fillStatus();
@@ -371,151 +380,134 @@ public class MainForm extends javax.swing.JFrame {
 
     }
 
+    public void kiemTraDatTruoc() {
+
+    }
+
     public void execute() {
 
-        MenuItem trangChu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/hotel.png")), "Trang chủ", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        MenuItem trangChu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/hotel.png")), "Trang chủ", (ActionEvent e) -> {
+            refresh();
+        });
+
+        MenuItem qlP = new MenuItem(null, "    Quản lý phòng", (ActionEvent e) -> {
+            QuanLyPhong ql = new QuanLyPhong();
+            ql.setVisible(true);
+            ql.btn_Add1.addActionListener((ActionEvent e1) -> {
+                ql.insertRoom();
                 refresh();
-            }
+            });
+            ql.btn_Delete1.addActionListener((ActionEvent e1) -> {
+                ql.deleteRoom();
+                refresh();
+            });
+            ql.btn_Update1.addActionListener((ActionEvent e1) -> {
+                ql.updateRoom();
+                refresh();
+            });
         });
 
-        MenuItem qlP = new MenuItem(null, "    Quản lý phòng", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                QuanLyPhong ql = new QuanLyPhong();
-                ql.setVisible(true);
-                ql.btn_Add1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ql.insertRoom();
-                        refresh();
-                    }
-
-                });
-                ql.btn_Delete1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ql.deleteRoom();
-                        refresh();
-                    }
-
-                });
-                ql.btn_Update1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        ql.updateRoom();
-                        refresh();
-                    }
-
-                });
-            }
-
+        MenuItem dichVu = new MenuItem(null, "   Dịch vụ", (ActionEvent e) -> {
+            new DichVuUI().setVisible(true);
         });
-
-        MenuItem dichVu = new MenuItem(null, "   Dịch vụ", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new DichVuUI().setVisible(true);
-            }
-        });
-        MenuItem loaiDichVu = new MenuItem(null, "   Loại dịch vụ", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new LoaiDichVuUI().setVisible(true);
-            }
+        MenuItem loaiDichVu = new MenuItem(null, "   Loại dịch vụ", (ActionEvent e) -> {
+            new LoaiDichVuUI().setVisible(true);
         });
         MenuItem qlDichVu = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-service.png")),
                 "Dich vụ", null, dichVu, loaiDichVu);
 
-        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ThongKe tk = new ThongKe();
-                tk.tabs.setSelectedIndex(1);
-            }
+        MenuItem doanhthu = new MenuItem(null, "   Doanh thu", (ActionEvent e) -> {
+            ThongKe tk = new ThongKe();
+            tk.tabs.setSelectedIndex(1);
         });
-        MenuItem kh = new MenuItem(null, "   Khách hàng", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ThongKe tk = new ThongKe();
-                tk.tabs.setSelectedIndex(0);
-            }
+        MenuItem kh = new MenuItem(null, "   Khách hàng", (ActionEvent e) -> {
+            ThongKe tk = new ThongKe();
+            tk.tabs.setSelectedIndex(0);
         });
         MenuItem thongKe = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/analytics.png")), "Thống kê", null,
                 doanhthu, kh);
 
         MenuItem khuyenMai = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/tag.png")),
-                "Khuyến mãi", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new KhuyenMaiUI().setVisible(true);
-            }
-        });
-
-        MenuItem dangX = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/log-out.png")), "Đăng xuất", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dangXuat();
-            }
-        });
-
-        MenuItem dattruoc = new MenuItem(null, "    Đặt trước",
-                new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new DatTruocUI().setVisible(true);
-            }
-
-        });
-        MenuItem thue = new MenuItem(null, "     Thuê phòng", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ThuePhongUI t = new ThuePhongUI();
-                t.btn_ThemPhong.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (t.checkForm() == false) {
-
-                        } else {
-                            t.add();
-                            notification(MsgBox.Type.SUCCESS, "Thuê phòng thành công");
-                            fillDatTruoc();
-                            refresh();
-                            t.dispose();
-                        }
-                    }
-
+                "Khuyến mãi", (ActionEvent e) -> {
+                    new KhuyenMaiUI().setVisible(true);
                 });
 
-            }
-        });
-        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, dattruoc, thue);
-
-        MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.png")), "Quản lý nhân viên", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new QuanLyNhanVien().setVisible(true);
-            }
+        MenuItem dangX = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/log-out.png")), "Đăng xuất", (ActionEvent e) -> {
+            dangXuat();
         });
 
-        MenuItem qlKhachHang = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-feedback.png")), "Quản lý khách hàng",
-                new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new QuanLyKhachHang().setVisible(true);
-            }
+        MenuItem dattruoc = new MenuItem(null, "    Đặt trước", (ActionEvent e) -> {
+            new DatTruocUI();
+        });
+        MenuItem thue = new MenuItem(null, "    Thuê phòng", (ActionEvent e) -> {
+            ThuePhongUI t = new ThuePhongUI();
+            t.btn_ThemPhong.addActionListener((ActionEvent e1) -> {
+                if (t.checkForm() == false) {
+
+                } else {
+                    t.add();
+                    MsgBox.alert(this, "Thuê phòng thành công");
+                    fillDatTruoc();
+                    refresh();
+                    t.dispose();
+                }
+            });
+        });
+
+        MenuItem kiemTraDatTruoc = new MenuItem(null, "    Check đặt trước", (ActionEvent e) -> {
+            KiemTraDatTruoc k = new KiemTraDatTruoc();
+            k.setLocationRelativeTo(null);
+            k.setVisible(true);
+            k.btnOk.addActionListener((ActionEvent e1) -> {
+                boolean check = true;
+                Phong p = (Phong) k.cbo_Phong.getModel().getSelectedItem();
+                listPhongDatTruoc = dtDao.selectAll();
+                for (int i = 0; i < listPhongDatTruoc.size(); i++) {
+                    DatTruoc dt = listPhongDatTruoc.get(i);
+                    if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd")
+                            .compareTo(XDate.toString(dt.getNgayTra(), "yyyy-MM-dd")) <= -1
+                            && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                        MsgBox.alert(null, "Từ ngày " + XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd") + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                        check = false;
+                        break;
+                    } else if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd")
+                            .compareTo(XDate.toString(dt.getNgayTra(), "yyyy-MM-dd")) == 0
+                            && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                        MsgBox.alert(null, "Từ ngày " + XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd") + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                       check = false;
+                        break;
+                    } else if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd")
+                            .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) == 0
+                            && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                        MsgBox.alert(null, "Từ ngày " + XDate.toString(k.dcsNgayNhan.getDate(), "yyyy-MM-dd") + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                       check = false;
+                        break;
+                    }
+                    
+                }
+                  if(check == true){
+                      MsgBox.alert(this,"Phong này còn trống!");
+                  }
+            });
+          
+                
+            
 
         });
 
-        MenuItem hoaDon = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/bill.png")), "Hóa đơn",
-                new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new HoaDonUI().setVisible(true);
-            }
-        }
-        );
+        MenuItem qlPhong = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/double-bed.png")), "Quản lý phòng", null, qlP, dattruoc, thue, kiemTraDatTruoc);
+
+        MenuItem qlNhanVien = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/crew.png")), "Quản lý nhân viên", (ActionEvent e) -> {
+            new QuanLyNhanVien().setVisible(true);
+        });
+
+        MenuItem qlKhachHang = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/customer-feedback.png")), "Quản lý khách hàng", (ActionEvent e) -> {
+            new QuanLyKhachHang().setVisible(true);
+        });
+
+        MenuItem hoaDon = new MenuItem(new ImageIcon(getClass().getClassLoader().getResource("Images/bill.png")), "Hóa đơn", (ActionEvent e) -> {
+            new HoaDonUI().setVisible(true);
+        });
 
         addMenu(trangChu, qlNhanVien, qlPhong, qlKhachHang, qlDichVu, thongKe, khuyenMai, hoaDon, dangX);
 
@@ -529,11 +521,11 @@ public class MainForm extends javax.swing.JFrame {
         themPhong = new javax.swing.JMenuItem();
         pnlMenu = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         lblNameNV = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         pnlPhong = new javax.swing.JPanel();
+        pnlCart = new javax.swing.JPanel();
         PanelExit = new javax.swing.JPanel();
         lblThuLai = new javax.swing.JLabel();
         lblKetThuc = new javax.swing.JLabel();
@@ -553,12 +545,11 @@ public class MainForm extends javax.swing.JFrame {
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("UTM Isadora", 0, 36)); // NOI18N
-        jLabel1.setText("Chào mừng đến với khách sạn BamBoo");
-        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, -1, -1));
-
+        lblNameNV.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        lblNameNV.setForeground(new java.awt.Color(255, 51, 0));
+        lblNameNV.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblNameNV.setText("Tên nhân viên");
-        jPanel2.add(lblNameNV, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 10, 100, -1));
+        jPanel2.add(lblNameNV, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 0, 140, -1));
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
@@ -578,7 +569,11 @@ public class MainForm extends javax.swing.JFrame {
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 710, 570));
+        jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 710, 550));
+
+        pnlCart.setBackground(new java.awt.Color(255, 255, 255));
+        pnlCart.setPreferredSize(new java.awt.Dimension(910, 283));
+        jPanel2.add(pnlCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 520, 100));
 
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 23, 710, -1));
 
@@ -685,7 +680,6 @@ Nimbus (introduced in Java SE 6) is not available, stay with the default look an
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel PanelExit;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -693,6 +687,7 @@ Nimbus (introduced in Java SE 6) is not available, stay with the default look an
     private javax.swing.JLabel lblKetThuc;
     private javax.swing.JLabel lblNameNV;
     private javax.swing.JLabel lblThuLai;
+    private javax.swing.JPanel pnlCart;
     private javax.swing.JPanel pnlMenu;
     private javax.swing.JPanel pnlPhong;
     private javax.swing.JMenuItem themPhong;

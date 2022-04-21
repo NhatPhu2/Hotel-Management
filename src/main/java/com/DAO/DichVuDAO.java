@@ -19,22 +19,24 @@ public class DichVuDAO extends QLKSDAO<DichVu, Integer> {
 
     @Override
     public void insert(DichVu dv) {
-        String sql = "INSERT INTO dichVu ( tenDV, gia,maloai) VALUES ( ?, ? , ?)";
+        String sql = "INSERT INTO dichVu ( tenDV, gia,maloai, hinh) VALUES ( ?, ? , ?, ?)";
         JdbcHelper.update(sql,
                
                 dv.getTenDV(),
                 dv.getGia(),
-                dv.getMaLoai()
+                dv.getMaLoai(),
+                dv.getHinh()
         );
     }
 
     @Override
     public void update(DichVu dv) {
-        String sql = "UPDATE dichVu SET tenDV=?, gia=? ,maloai = ? WHERE maDV=?";
+        String sql = "UPDATE dichVu SET tenDV=?, gia=? ,maloai = ?, hinh = ? WHERE maDV=?";
         JdbcHelper.update(sql,
                 dv.getTenDV(),
                 dv.getGia(),
                 dv.getMaLoai(),
+                dv.getHinh(),
                 dv.getMaDV()
         );
     }
@@ -84,6 +86,7 @@ public class DichVuDAO extends QLKSDAO<DichVu, Integer> {
         dv.setTenDV(rs.getString("tenDV"));
         dv.setGia(rs.getFloat("gia"));
         dv.setMaLoai(rs.getInt("maloai"));
+        dv.setHinh(rs.getString("hinh"));
         return dv;
     }
     

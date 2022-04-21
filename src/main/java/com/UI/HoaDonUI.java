@@ -66,6 +66,9 @@ public class HoaDonUI extends javax.swing.JFrame {
         initComponents();
         this.setVisible(true);
         init();
+         Form_Cart f =  new Form_Cart();
+       f.setVisible(true);
+       this.add(f);
     }
 
     @SuppressWarnings("unchecked")
@@ -348,10 +351,7 @@ public class HoaDonUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    public void notification(MsgBox.Type type, String message) {
-        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
-        panel.showNotification();
-    }
+   
     private void lblThuLaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThuLaiMouseClicked
         // TODO add your handling code here:
         this.setState(HoaDonUI.ICONIFIED);
@@ -374,7 +374,7 @@ public class HoaDonUI extends javax.swing.JFrame {
 
     private void btn_XuatHDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_XuatHDActionPerformed
         if(index == -1){
-            notification(MsgBox.Type.WARNING,"Chọn hóa đơn muốn xuất");
+            MsgBox.alert(this,"Chọn hóa đơn muốn xuất");
             return;
         }
         printExcel();
@@ -493,6 +493,10 @@ public class HoaDonUI extends javax.swing.JFrame {
                 new HoaDonUI().setVisible(true);
             }
         });
+        
+      
+       
+    
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

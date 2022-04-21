@@ -19,12 +19,16 @@ import com.google.zxing.common.HybridBinarizer;
 import com.utils.Auth;
 import com.utils.MsgBox;
 import java.awt.Dimension;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -42,6 +46,43 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
         initComponents();
         this.setVisible(true);
         init();
+        
+        txt_UserName.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER) {
+                    try {
+                        login();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        txt_Pass.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER) {
+                    try {
+                        login();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+        btn_Login.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+                if (key == KeyEvent.VK_ENTER) {
+                    try {
+                        login();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
     }
 
     
@@ -62,6 +103,8 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
         lblThuLai = new javax.swing.JLabel();
         lblKetThuc = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        ErrorUser = new javax.swing.JLabel();
+        ErrorPass = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -138,6 +181,12 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
             }
         });
 
+        ErrorUser.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        ErrorUser.setForeground(new java.awt.Color(255, 0, 0));
+
+        ErrorPass.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        ErrorPass.setForeground(new java.awt.Color(255, 0, 0));
+
         javax.swing.GroupLayout kGradientPanel1Layout = new javax.swing.GroupLayout(kGradientPanel1);
         kGradientPanel1.setLayout(kGradientPanel1Layout);
         kGradientPanel1Layout.setHorizontalGroup(
@@ -163,7 +212,10 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                                     .addGroup(kGradientPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel2)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txt_Pass, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txt_Pass, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(ErrorUser, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(ErrorPass, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(18, 18, 18)
                                 .addComponent(lbl_ShowPass, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(kGradientPanel1Layout.createSequentialGroup()
@@ -194,13 +246,17 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                         .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(txt_UserName, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ErrorUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel2)
                                 .addComponent(txt_Pass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(lbl_ShowPass, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(26, 26, 26)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ErrorPass, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -208,7 +264,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(19, 19, 19))
                     .addComponent(lbl_Sceen, javax.swing.GroupLayout.PREFERRED_SIZE, 560, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 3, Short.MAX_VALUE))
         );
 
         kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel1, jLabel2});
@@ -260,11 +316,13 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                 login();
             } else {
                 txt_Pass.grabFocus();
-                JOptionPane.showMessageDialog(this, "Không để trống mật khẩu!");
+                MsgBox.alert(this, "Không để trống mật khẩu!");
+                ErrorPass.setText("Nhập mật khẩu!");
             }
         } else {
             txt_UserName.grabFocus();
-            JOptionPane.showMessageDialog(this, "Không để trống tên đăng nhập!");
+            MsgBox.alert(this, "Không để trống tên đăng nhập!");
+            ErrorUser.setText("Nhập tên đăng nhập!");
         }
     }//GEN-LAST:event_btn_LoginActionPerformed
 
@@ -313,6 +371,8 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel ErrorPass;
+    private javax.swing.JLabel ErrorUser;
     private com.k33ptoo.components.KButton btn_Login;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -348,16 +408,20 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
         NhanVien nv = dao.selectById(manv);
 
         if (nv == null) {
-            MsgBox.alert(this,"Sai tên đăng nhập");
+            ErrorUser.setText("Sai tên đăng nhập!");
         } else if (!matKhau.equals(nv.getMaKhau())) {
-            MsgBox.alert(this, "Sai mật khẩu");
+            ErrorPass.setText("Sai mật khẩu!");
         } else {
+          
+            
+
+           
+            this.dispose();
             Auth.user = nv;
             MainForm m = new MainForm();
             m.setVisible(true);
-            this.dispose();
+            
         }
-
     }
 
     @Override

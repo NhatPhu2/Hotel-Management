@@ -15,18 +15,15 @@ import com.DAO.PhongDAO;
 import com.DAO.ThuePhongDAO;
 import com.Entity.ChiTietHoaDon;
 import com.Entity.DatTruoc;
-
 import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
-import com.Entity.KhachHang;
 import javax.swing.JOptionPane;
 import com.Entity.ThuePhong;
 import com.utils.MsgBox;
 import com.utils.XDate;
 import java.awt.event.MouseEvent;
 import java.util.Date;
-import com.Entity.DichVu;
 import com.Entity.HoaDon;
 import com.Entity.KhuyenMai;
 import com.Entity.Phong;
@@ -35,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.Formatter;
 import java.util.Locale;
@@ -70,10 +66,7 @@ public class TraPhongUI extends javax.swing.JFrame {
     Date date = new java.sql.Date(millis);
     int index = -1;
     
-     public void notification(MsgBox.Type type, String message) {
-        MsgBox panel = new MsgBox(this, type, MsgBox.Location.CENTER, message);
-        panel.showNotification();
-    }
+     
     
     public void fillTable() {
         model = (DefaultTableModel) tbl_CheckOut.getModel();
@@ -132,7 +125,7 @@ public class TraPhongUI extends javax.swing.JFrame {
         dtDao.updateStatus(updateStatus());
         }
         thuePhongDao.delete(maThue);
-        notification(MsgBox.Type.SUCCESS,"Thanh toán thành công");
+         MsgBox.alert(this,"Thanh toán thành công");
         fillTable();
     }
 
@@ -165,57 +158,43 @@ public class TraPhongUI extends javax.swing.JFrame {
     }
 
     public void themDichVu() {
-
         ChonDichVu dv1 = new ChonDichVu();
         dv1.setVisible(true);
-        dv1.cbo_LoaiDichVu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dv1.clearList();
-                if (dv1.cbo_LoaiDichVu.getSelectedIndex() == 0) {
-                    dv1.fillAll();
-                } else {
-                    dv1.fillTypeOfService();
-                }
-                for (int i = 0; i < dv1.listPnlMon.size(); i++) {
-                    int index = i;
-
-                    dv1.listPnlMon.get(i).addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mousePressed(MouseEvent e) {
-                            SoLuong sl = new SoLuong();
-                            sl.setLocationRelativeTo(dv1);
-                            sl.setVisible(true);
-                            sl.lblRoomNumber.setText("Phòng số " + soPhong);
-                            sl.lblServiceName.setText("" + dv1.listDichVu.get(index).getTenDV());
-                            sl.btnAdd.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    int maHD = hdDao.selectByMaThue(maThue).getMaHD();
-                                    ChiTietHoaDon ct = new ChiTietHoaDon();
-                                    ct.setMaHD(maHD);
-                                    ct.setMaDV(dv1.listDichVu.get(index).getMaDV());
-                                    ct.setNgaySuDung(date);
-                                    int count = sl.count;
-                                    for (int i = 0; i < count; i++) {
-                                        ctDao.insert(ct);
-                                    }
-                                    fillTable();
-                                    notification(MsgBox.Type.SUCCESS,"Thêm dịch vụ thành công");
-                                    sl.dispose();
-                                }
-
-                            });
-
-                        }
-                    });
-
-                }
-
+        dv1.cbo_LoaiDichVu.addActionListener((ActionEvent e) -> {
+            dv1.clearList();
+            if (dv1.cbo_LoaiDichVu.getSelectedIndex() == 0) {
+                dv1.fillAll();
+            } else {
+                dv1.fillTypeOfService();
+            }
+            for (int i = 0; i < dv1.listPnlMon.size(); i++) {
+                int index1 = i;
+                dv1.listPnlMon.get(i).addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        SoLuong sl = new SoLuong();
+                        sl.setLocationRelativeTo(dv1);
+                        sl.setVisible(true);
+                        sl.lblRoomNumber.setText("Phòng số " + soPhong);
+                        sl.lblServiceName.setText("" + dv1.listDichVu.get(index1).getTenDV());
+                        sl.btnAdd.addActionListener((ActionEvent e1) -> {
+                            int maHD = hdDao.selectByMaThue(maThue).getMaHD();
+                            ChiTietHoaDon ct = new ChiTietHoaDon();
+                            ct.setMaHD(maHD);
+                            ct.setMaDV(dv1.listDichVu.get(index1).getMaDV());
+                            ct.setNgaySuDung(date);
+                            int count = sl.count;
+                            for (int i1 = 0; i1 < count; i1++) {
+                                ctDao.insert(ct);
+                            }
+                            fillTable();
+                             MsgBox.alert(dv1,"Thêm dịch vụ thành công");
+                            sl.dispose();
+                        });
+                    }
+                });
             }
         });
-       
-
     }
     
     float tongTienDV;

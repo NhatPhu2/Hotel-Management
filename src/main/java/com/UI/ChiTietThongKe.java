@@ -10,8 +10,10 @@ import com.DAO.HoaDonDAO;
 import com.Entity.ChiTietHoaDon;
 import com.Entity.DichVu;
 import com.Entity.HoaDon;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -20,44 +22,46 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ChiTietThongKe extends javax.swing.JFrame {
 
-   List<HoaDon> listHaoDon = new ArrayList<>();
-   ChiTietHoaDonDAO ctDao = new ChiTietHoaDonDAO();
-   DichVuDAO dvDao = new DichVuDAO();
-   int index = -1;
+    List<HoaDon> listHaoDon = new ArrayList<>();
+    ChiTietHoaDonDAO ctDao = new ChiTietHoaDonDAO();
+    DichVuDAO dvDao = new DichVuDAO();
+    HoaDonDAO hdDao = new HoaDonDAO();
+    int index = -1;
+    NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
+
     public ChiTietThongKe() {
         initComponents();
         this.setVisible(true);
         this.setLocationRelativeTo(null);
     }
-    
-     public void fillService(Integer maHD) {
-        
-        
+
+    public void fillService(Integer maHD) {
+        float tongTien = 0f;
         DefaultTableModel model = (DefaultTableModel) tblDichVu.getModel();
         model.setRowCount(0);
-        List<ChiTietHoaDon> list = ctDao.selectByHoaDon(maHD);
-       
-        for(int i = 0 ; i < list.size() ; i ++){
-            ChiTietHoaDon ct = list.get(i);
-            DichVu dv = dvDao.selectById(ct.getMaDV());
-            Object obj[] = {++i,dv.getTenDV(),ct.getNgaySuDung()};
-            model.addRow(obj);
+        List<Object[]> list = hdDao.tenDichVu(listHaoDon.get(index).getMaHD());
+        int sTT = 1;
+        for (Object[] row : list) {
+            int soLuong = Integer.parseInt(row[2].toString());
+            float donGia = Float.parseFloat(row[1].toString());
+            float thanhTien = soLuong * donGia;
+            model.addRow(new Object[]{sTT++, row[0], soLuong, nf.format(donGia), row[3], nf.format(thanhTien)});
         }
-        
+
     }
-   
-    
-    public void fillTable(String cmnd){
-        DefaultTableModel model = (DefaultTableModel)tblThongTinKH.getModel();
+
+    public void fillTable(String cmnd) {
+        DefaultTableModel model = (DefaultTableModel) tblThongTinKH.getModel();
         model.setRowCount(0);
         HoaDonDAO hdDao = new HoaDonDAO();
         listHaoDon = hdDao.selectByCmnd(cmnd);
-        listHaoDon.forEach((element ->{
-            Object[] obj = {element.getNgayLap(),element.getNgayXuat(),element.getSoNgay(),element.getSoPhong(),element.getSodv()};
+        listHaoDon.forEach((element -> {
+            Object[] obj = {element.getNgayLap(), element.getNgayXuat(), element.getSoNgay(),
+                element.getSoPhong(), element.getSodv(), element.getThanhTien()};
             model.addRow(obj);
         }));
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -75,13 +79,13 @@ public class ChiTietThongKe extends javax.swing.JFrame {
         tblThongTinKH.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tblThongTinKH.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Ngày đến", "Ngày đi", "Số ngày ở", "Số phòng", "Số dịch vụ"
+                "Ngày đến", "Ngày đi", "Số ngày ở", "Số phòng", "Số dịch vụ", "Tổng tiền"
             }
         ));
         tblThongTinKH.setGridColor(new java.awt.Color(255, 255, 255));
@@ -98,13 +102,13 @@ public class ChiTietThongKe extends javax.swing.JFrame {
         tblDichVu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tblDichVu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "STT", "Tên dịch vụ", "Ngày sử dụng"
+                "STT", "Tên dịch vụ", "Số lượng", "Ngày sử dụng", "Thành tiền"
             }
         ));
         tblDichVu.setGridColor(new java.awt.Color(255, 255, 255));
@@ -119,10 +123,10 @@ public class ChiTietThongKe extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 521, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 645, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -151,16 +155,16 @@ public class ChiTietThongKe extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblThongTinKHMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblThongTinKHMousePressed
-       index = tblThongTinKH.getSelectedRow();
-       if(index == -1)
-           return;
-       Integer maHD = listHaoDon.get(index).getMaHD();
+        index = tblThongTinKH.getSelectedRow();
+        if (index == -1) {
+            return;
+        }
+        Integer maHD = listHaoDon.get(index).getMaHD();
         fillService(maHD);
     }//GEN-LAST:event_tblThongTinKHMousePressed
 
-    
     public static void main(String args[]) {
-      
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ChiTietThongKe().setVisible(true);

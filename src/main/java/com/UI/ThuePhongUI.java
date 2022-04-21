@@ -12,7 +12,6 @@ import com.DAO.PhongDAO;
 import com.DAO.ThuePhongDAO;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import com.Entity.KhachHang;
 import com.Entity.LoaiPhong;
 import com.Entity.Phong;
@@ -23,6 +22,7 @@ import com.utils.MsgBox;
 import com.utils.XDate;
 import com.Entity.HoaDon;
 import com.utils.Auth;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -49,7 +49,6 @@ public class ThuePhongUI extends javax.swing.JFrame {
         lblNgayNhan1.setVisible(false);
         lblCoc1.setVisible(false);
         fillComboBoxLoaiPhong();
-       
 
     }
 
@@ -72,7 +71,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
             model.addElement(element);
         });
         model.toString();
-        
+
     }
 
     public KhachHang getValueKhachHang() {
@@ -115,20 +114,20 @@ public class ThuePhongUI extends javax.swing.JFrame {
         } else if (txt_SoDT.getText().matches("[01-9]{9}")) {
             MsgBox.alert(null, "Số điện thoại phải đúng 10 số");
             return false;
-        }else if(DC_NgaySinh.getDate() == null){
-             MsgBox.alert(null, "Vui lòng điền năm sinh");
+        } else if (DC_NgaySinh.getDate() == null) {
+            MsgBox.alert(null, "Vui lòng điền năm sinh");
             return false;
         }
         try {
             int ngayThue = Integer.parseInt(txt_NgayThue.getText());
-            if (ngayThue <= 0) {
+            if (ngayThue < 0) {
                 throw new Exception();
             }
         } catch (Exception e) {
             MsgBox.alert(null, "Số ngày thuê chỉ nhập số nguyên");
             return false;
         }
-        
+
         if (chk_DatTruoc1.isSelected()) {
             if (DC_NgayNhan.getDate() == null) {
                 MsgBox.alert(null, "Vui lòng điền ngày nhận phòng");
@@ -146,21 +145,62 @@ public class ThuePhongUI extends javax.swing.JFrame {
                 MsgBox.alert(null, "Tiền cọc vui lòng nhập số(không nhỏ hơn hoặc bằng 0)");
                 return false;
             }
-        }
 
+            Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+            if (p.getTinhTrang().equalsIgnoreCase("đã có người")) {
+                MsgBox.alert(null, "Phòng này đã có người xin vui lòng chọn phòng khác");
+                return false;
+            }
+
+            List<DatTruoc> listDatTruoc = dtDao.selectAll();
+            for (int i = 0; i < listDatTruoc.size(); i++) {
+                DatTruoc dt = listDatTruoc.get(i);
+                if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(DC_NgayNhan.getDate(), "yyyy-MM-dd")
+                        .compareTo(XDate.toString(dt.getNgayTra(), "yyyy-MM-dd")) <= -1
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                    MsgBox.alert(null, "Từ ngày " + DC_NgayNhan.getDate() + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                    return false;
+                } else if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(DC_NgayNhan.getDate(), "yyyy-MM-dd")
+                        .compareTo(XDate.toString(dt.getNgayTra(), "yyyy-MM-dd")) == 0
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                    MsgBox.alert(null, "Từ ngày " + DC_NgayNhan.getDate() + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                    return false;
+                } else if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(DC_NgayNhan.getDate(), "yyyy-MM-dd")
+                        .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) == 0
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                    MsgBox.alert(null, "Từ ngày " + DC_NgayNhan.getDate() + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                    return false;
+                }
+            }
+
+        } else {
+            Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+            List<DatTruoc> listDatTruoc = dtDao.selectAll();
+            for (int i = 0; i < listDatTruoc.size(); i++) {
+                DatTruoc dt = listDatTruoc.get(i);
+                if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())), "yyyy-MM-dd")
+                        .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) == 0
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng") || dt.getSoPhong().equals(p.getSoPhong())
+                        && XDate.toString(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())), "yyyy-MM-dd")
+                                .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) >= 1
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
+                    MsgBox.alert(null, "Từ ngày " + dt.getNgayNhanPhong() + " đến " + dt.getNgayTra() + " Phòng này đã có người đặt trước rồi");
+                    return false;
+                }
+            }
+        }
         return true;
     }
-    
 
     public ThuePhong getValueThuePhong() {
         ThuePhong t = new ThuePhong();
         Phong p = (Phong) cbo_SoPhong.getSelectedItem();
         List<ThuePhong> list = tpDao.selectAll();
         int maThue;
-        if(list.size() == 0)
-            maThue  = list.size() + 1;
-        else{
-        maThue  = list.get(list.size() -1).getMaThue() + 1;
+        if (list.size() == 0) {
+            maThue = list.size() + 1;
+        } else {
+            maThue = list.get(list.size() - 1).getMaThue() + 1;
         }
         t.setMaThue(maThue);
         t.setNgayTra(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())));
@@ -182,12 +222,12 @@ public class ThuePhongUI extends javax.swing.JFrame {
         d.setMaNV(Auth.user.getMaNV());
         return d;
     }
-    
+
     public HoaDon getValueHoaDon() {
         HoaDon hd = new HoaDon();
         String cmnd = txt_CMND.getText();
         List<ThuePhong> list = tpDao.selectAll();
-        int maThue  = list.get(list.size() -1).getMaThue();
+        int maThue = list.get(list.size() - 1).getMaThue();
         hd.setCmnd(cmnd);
         hd.setMaKM(null);
         hd.setMaNV(Auth.user.getMaNV());
@@ -200,8 +240,8 @@ public class ThuePhongUI extends javax.swing.JFrame {
         return hd;
 
     }
-    
-    public Phong getValuePhong(){
+
+    public Phong getValuePhong() {
         Phong p = new Phong();
         Phong p1 = (Phong) cbo_SoPhong.getSelectedItem();
         p.setTinhTrang("Đã có người");
@@ -211,33 +251,25 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public void add() {
         boolean check = true;
-        Phong p = (Phong) cbo_SoPhong.getSelectedItem();
-        if(p.getTinhTrang().equalsIgnoreCase("đã có người")){
-            MsgBox.alert(null,"Phòng này đã có người xin vui lòng chọn phòng khác");
-            return;
-        }
-        
+
         List<KhachHang> list = khDao.selectAll();
-        for(int i =0 ;i<list.size() ; i ++){ //kiểm tra khách hàng đã từng đến KS
+        for (int i = 0; i < list.size(); i++) { //kiểm tra khách hàng đã từng đến KS
             KhachHang k = list.get(i);
-            if(txt_CMND.getText().trim().equals(k.getCmnd().trim())){
+            if (txt_CMND.getText().trim().equals(k.getCmnd().trim())) {
                 check = false;
             }
         }
-        
-         
-        
-        if(check == true)    
-        khDao.insert(getValueKhachHang());
-        if (chk_DatTruoc1.isSelected()){
-            dtDao.insert(getValueDatTruoc());
+
+        if (check == true) {
+            khDao.insert(getValueKhachHang());
         }
-         else {
+        if (chk_DatTruoc1.isSelected()) {
+            dtDao.insert(getValueDatTruoc());
+        } else {
             tpDao.insert(getValueThuePhong());
             hdDao.insert(getValueHoaDon());
             spDao.updateTrangThaiPhong(getValuePhong());
         }
-        
 
     }
 
@@ -612,9 +644,23 @@ public class ThuePhongUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txt_CMNDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_CMNDActionPerformed
-       
-    }//GEN-LAST:event_txt_CMNDActionPerformed
+    private void lblThuLaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThuLaiMouseClicked
+        // TODO add your handling code here:
+        this.setState(ThuePhongUI.ICONIFIED);
+    }//GEN-LAST:event_lblThuLaiMouseClicked
+
+    private void lblKetThucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKetThucMouseClicked
+        // TODO add your handling code here:
+        this.setVisible(false);
+    }//GEN-LAST:event_lblKetThucMouseClicked
+
+    private void btn_NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_NewActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btn_NewActionPerformed
+
+    private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
+
+    }//GEN-LAST:event_btn_ThemPhongActionPerformed
 
     private void chk_DatTruoc1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chk_DatTruoc1MousePressed
         if (chk_DatTruoc1.isSelected()) {
@@ -630,27 +676,13 @@ public class ThuePhongUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_chk_DatTruoc1MousePressed
 
-    private void lblThuLaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblThuLaiMouseClicked
-        // TODO add your handling code here:
-        this.setState(ThuePhongUI.ICONIFIED);
-    }//GEN-LAST:event_lblThuLaiMouseClicked
-
-    private void lblKetThucMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblKetThucMouseClicked
-        // TODO add your handling code here:
-        this.setVisible(false);
-    }//GEN-LAST:event_lblKetThucMouseClicked
-
     private void cbo_LoaiPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_LoaiPhongActionPerformed
         fillComboBoxPhong();
     }//GEN-LAST:event_cbo_LoaiPhongActionPerformed
 
-    private void btn_NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_NewActionPerformed
-        clearForm();
-    }//GEN-LAST:event_btn_NewActionPerformed
+    private void txt_CMNDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_CMNDActionPerformed
 
-    private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
-      
-    }//GEN-LAST:event_btn_ThemPhongActionPerformed
+    }//GEN-LAST:event_txt_CMNDActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -693,7 +725,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     public javax.swing.JComboBox<String> cbo_LoaiPhong;
     public javax.swing.JComboBox<String> cbo_SoPhong;
-    public javax.swing.JCheckBox chk_DatTruoc1;
+    private javax.swing.JCheckBox chk_DatTruoc1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;

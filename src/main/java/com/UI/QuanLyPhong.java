@@ -787,7 +787,7 @@ public class QuanLyPhong extends javax.swing.JFrame {
         LoaiPhong lp = getForm();
 
         if (txt_idKindOfRoom.getText().equals("")) {
-            MsgBox.warring(this, "Mã loại phòng không được để trống!");
+            MsgBox.alert(this, "Mã loại phòng không được để trống!");
             txt_idKindOfRoom.requestFocus();
             txt_idKindOfRoom.setBackground(Color.yellow);
             return;
@@ -795,7 +795,7 @@ public class QuanLyPhong extends javax.swing.JFrame {
             txt_idKindOfRoom.setBackground(Color.white);
         }
 //        if (txt_RoomName.getText().equals("")) {
-//            MsgBox.warring(this, "Tên loại phòng không được để trống!");;
+//            MsgBox.alert(this, "Tên loại phòng không được để trống!");;
 //            txt_RoomName.requestFocus();
 //            txt_RoomName.setBackground(Color.yellow);
 //            return;
@@ -803,7 +803,7 @@ public class QuanLyPhong extends javax.swing.JFrame {
 //            txt_RoomName.setBackground(Color.white);
 //        }
 //        if (txt_Price.getText().equals("")) {
-//            MsgBox.warring(this, "Giá không được để trống!");
+//            MsgBox.alert(this, "Giá không được để trống!");
 //            txt_Price.requestFocus();
 //            txt_Price.setBackground(Color.yellow);
 //            return;

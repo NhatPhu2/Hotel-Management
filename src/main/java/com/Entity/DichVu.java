@@ -14,31 +14,18 @@ public class DichVu {
     private String tenDV;
     private float gia;
     private int maLoai;
+    private String hinh;
 
-    public DichVu() {
-    }
-
-    @Override
-    public String toString() {
-        return this.tenDV;
-    }
-
-    public DichVu(int maDV, String tenDV, float gia, int maLoai) {
+    public DichVu(int maDV, String tenDV, float gia, int maLoai, String hinh) {
         this.maDV = maDV;
         this.tenDV = tenDV;
         this.gia = gia;
         this.maLoai = maLoai;
+        this.hinh = hinh;
     }
 
-    public int getMaLoai() {
-        return maLoai;
+    public DichVu() {
     }
-
-    public void setMaLoai(int maLoai) {
-        this.maLoai = maLoai;
-    }
-
-   
 
     public int getMaDV() {
         return maDV;
@@ -63,5 +50,23 @@ public class DichVu {
     public void setGia(float gia) {
         this.gia = gia;
     }
+
+    public int getMaLoai() {
+        return maLoai;
+    }
+
+    public void setMaLoai(int maLoai) {
+        this.maLoai = maLoai;
+    }
+
+    public String getHinh() {
+        return hinh;
+    }
+
+    public void setHinh(String hinh) {
+        this.hinh = hinh;
+    }
+
+    
 
 }

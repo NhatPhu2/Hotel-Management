@@ -22,6 +22,7 @@ public class LoaiDichVuUI extends javax.swing.JFrame {
 
     public LoaiDichVuUI() {
         initComponents();
+        this.setVisible(true);
         setLocationRelativeTo(null);
         fillTable();
     }
