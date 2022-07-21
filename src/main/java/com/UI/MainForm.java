@@ -534,6 +534,7 @@ public class MainForm extends javax.swing.JFrame {
         jpoMenu.add(themPhong);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Trang chủ");
         setUndecorated(true);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -572,6 +573,8 @@ public class MainForm extends javax.swing.JFrame {
         jPanel2.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, 710, 550));
 
         pnlCart.setBackground(new java.awt.Color(255, 255, 255));
+        pnlCart.setToolTipText("");
+        pnlCart.setName(""); // NOI18N
         pnlCart.setPreferredSize(new java.awt.Dimension(910, 283));
         jPanel2.add(pnlCart, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 520, 100));
 

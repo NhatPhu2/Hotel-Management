@@ -45,7 +45,7 @@ public class ChiTietThongKe extends javax.swing.JFrame {
             int soLuong = Integer.parseInt(row[2].toString());
             float donGia = Float.parseFloat(row[1].toString());
             float thanhTien = soLuong * donGia;
-            model.addRow(new Object[]{sTT++, row[0], soLuong, row[3]});
+            model.addRow(new Object[]{sTT++, row[0], soLuong, nf.format(donGia), row[3], nf.format(thanhTien)});
         }
 
     }
@@ -57,7 +57,7 @@ public class ChiTietThongKe extends javax.swing.JFrame {
         listHaoDon = hdDao.selectByCmnd(cmnd);
         listHaoDon.forEach((element -> {
             Object[] obj = {element.getNgayLap(), element.getNgayXuat(), element.getSoNgay(),
-                element.getSoPhong(), element.getSodv(),nf.format( element.getThanhTien())};
+                element.getSoPhong(), element.getSodv(), element.getThanhTien()};
             model.addRow(obj);
         }));
     }
@@ -102,13 +102,13 @@ public class ChiTietThongKe extends javax.swing.JFrame {
         tblDichVu.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tblDichVu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "STT", "Tên dịch vụ", "Số lượng", "Ngày sử dụng"
+                "STT", "Tên dịch vụ", "Số lượng", "Ngày sử dụng", "Thành tiền"
             }
         ));
         tblDichVu.setGridColor(new java.awt.Color(255, 255, 255));

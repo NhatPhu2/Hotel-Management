@@ -22,13 +22,14 @@ import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-
 
 /**
  *
@@ -46,13 +47,13 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
         initComponents();
         this.setVisible(true);
         init();
-        
+
         txt_UserName.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_ENTER) {
                     try {
-                        login();
+                        login(txt_UserName.getText(),txt_Pass.getText());
                     } catch (Exception ex) {
                         Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -64,7 +65,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_ENTER) {
                     try {
-                        login();
+                          login(txt_UserName.getText(),txt_Pass.getText());
                     } catch (Exception ex) {
                         Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -76,7 +77,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                 int key = e.getKeyCode();
                 if (key == KeyEvent.VK_ENTER) {
                     try {
-                        login();
+                          login(txt_UserName.getText(),txt_Pass.getText());
                     } catch (Exception ex) {
                         Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -85,7 +86,6 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
         });
     }
 
-    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -212,10 +212,10 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                                     .addGroup(kGradientPanel1Layout.createSequentialGroup()
                                         .addComponent(jLabel2)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(txt_Pass, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(ErrorUser, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(ErrorPass, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                        .addGroup(kGradientPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txt_Pass, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+                                            .addComponent(ErrorUser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(ErrorPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                                 .addGap(18, 18, 18)
                                 .addComponent(lbl_ShowPass, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(kGradientPanel1Layout.createSequentialGroup()
@@ -264,7 +264,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(19, 19, 19))
                     .addComponent(lbl_Sceen, javax.swing.GroupLayout.PREFERRED_SIZE, 560, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 3, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         kGradientPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jLabel1, jLabel2});
@@ -311,19 +311,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
     }//GEN-LAST:event_lbl_ShowPassMouseClicked
 
     private void btn_LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_LoginActionPerformed
-        if (txt_UserName.getText().trim().length() > 0) {
-            if (txt_Pass.getPassword().length > 0) {
-                login();
-            } else {
-                txt_Pass.grabFocus();
-                MsgBox.alert(this, "Không để trống mật khẩu!");
-                ErrorPass.setText("Nhập mật khẩu!");
-            }
-        } else {
-            txt_UserName.grabFocus();
-            MsgBox.alert(this, "Không để trống tên đăng nhập!");
-            ErrorUser.setText("Nhập tên đăng nhập!");
-        }
+        login(txt_UserName.getText(),txt_Pass.getText());
     }//GEN-LAST:event_btn_LoginActionPerformed
 
     private void jLabel3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jLabel3KeyReleased
@@ -390,7 +378,6 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
 
     private void init() {
         setLocationRelativeTo(null);
-
     }
     WebCam c;
 
@@ -402,26 +389,32 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
 
     }
 
-    void login() {
-        String manv = txt_UserName.getText();
-        String matKhau = txt_Pass.getText();
+    public HashMap<String,String> login(String manv, String matKhau) {
         NhanVien nv = dao.selectById(manv);
-
-        if (nv == null) {
-            ErrorUser.setText("Sai tên đăng nhập!");
+        HashMap<String,String> messageError = new HashMap<>();
+        ErrorUser.setText("");
+        ErrorPass.setText("");
+        if (manv.trim().isEmpty()) { 
+            txt_UserName.grabFocus();
+            ErrorUser.setText("Không để trống tên đăng nhập");
+        } else if (matKhau.trim().isEmpty()) {
+            txt_Pass.grabFocus();
+            ErrorPass.setText("Không để trống mật khẩu");
+        } else if (nv == null) {
+            ErrorUser.setText("Tài khoản không tồn tại");
         } else if (!matKhau.equals(nv.getMaKhau())) {
-            ErrorPass.setText("Sai mật khẩu!");
+            ErrorPass.setText("Mật khẩu không chính xác");
         } else {
-          
-            
-
-           
             this.dispose();
             Auth.user = nv;
             MainForm m = new MainForm();
             m.setVisible(true);
-            
+            messageError.put("loginSuccess",m.getTitle());
+            return messageError;
         }
+        messageError.put("ErrorUser", ErrorUser.getText());
+        messageError.put("ErrorPass", ErrorPass.getText());
+        return messageError;
     }
 
     @Override
@@ -455,7 +448,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
             if (result != null) {
                 NhanVien nv = dao.selectById(result.getText());
                 if (nv == null) {
-                     MsgBox.alert(this,"Mã QR không chính xác");
+                    MsgBox.alert(this, "Mã QR không chính xác");
                 } else {
                     c.dispose();
                     try {
@@ -466,7 +459,7 @@ public class Login extends javax.swing.JFrame implements Runnable, ThreadFactory
                     Auth.user = nv;
                     new MainForm();
                     this.dispose();
-                    
+
                     break;
                 }
             }
