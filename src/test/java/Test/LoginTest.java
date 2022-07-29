@@ -1,123 +1,134 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit4TestClass.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/EmptyTestNGTest.java to edit this template
  */
 package Test;
 
 import com.UI.Login;
-import java.util.Arrays;
-import java.util.Collection;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Assume;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.testng.Assert.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author Admin
  */
-@RunWith(Parameterized.class)
 public class LoginTest {
-    enum Type{SAIMATKHAU,TKCHUADANGKY,DANGNHAPDUNG,EMPTYTAIKHOAN,EMPTYMATKHAU,EMPTYBOTH}
-    private String userName;
-    private String password;
+    
     private Login login;
-    private Type type;
     private String actualResult;
     private String expected;
-    
-    
-        LoginTest(Type type,String userName, String password) {
-        this.type = type;
-        this.userName = userName;
-        this.password = password;
-    }
-       
-    @Parameterized.Parameters
-    public static Collection valueAccount(){
-        return Arrays.asList(new Object[][]{
-            {Type.SAIMATKHAU,"MI","conrua123"},
-            {Type.SAIMATKHAU,"TU","conbo123"},
-            {Type.SAIMATKHAU,"Admin","conruabo123"},
-            
-            {Type.EMPTYBOTH,"",""},
-            
-            {Type.TKCHUADANGKY,"ngoc234","ng6457"},
-            
-            {Type.DANGNHAPDUNG,"Admin","1234a"},
-            {Type.DANGNHAPDUNG,"MI","1234"},
-            {Type.DANGNHAPDUNG,"TU","1234"},
-            
-            {Type.EMPTYTAIKHOAN,"","1234"},
-            
-            {Type.EMPTYMATKHAU,"MI",""},
-        });
-    }
-    
-    
+    String path = "E:\\testdata.xlsx";
+    String sheet = "Đăng nhập";
     @BeforeClass
-    public static void setUpClass() {
-        
+    public static void setUpClass() throws Exception {
     }
-    
+
     @AfterClass
-    public static void tearDownClass() {
+    public static void tearDownClass() throws Exception {
     }
     
-    @Test
-    public void testMatkhauSai(){       
-        Assume.assumeTrue(type == Type.SAIMATKHAU);
+    @DataProvider(name = "saiMatKhau")
+    public Object[][] dataMatkhauSai() {
+        
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"sai mật khẩu");
+        return data;
+    }
+    
+    @DataProvider(name = "taikhoanchuadangky")
+    public Object[][] dataTKChuaDangKy() {
+      
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"Tài khoản chưa đăng ký");
+        return data;
+    }
+    
+    @DataProvider(name = "dangNhapDung")
+    public Object[][] dataDangNhapDung() {
+    
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"tài khoản đúng");
+        return data;
+    }
+    
+    @DataProvider(name = "tkRong")
+    public Object[][] dataRongTK() {
+  
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"trống tài khoản");
+        return data;
+    }
+    
+    @DataProvider(name = "mkRong")
+    public Object[][] dataRongMK() {
+
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"trống mật khẩu");
+        return data;
+    }
+    
+    @DataProvider(name = "tkRongVaMKRong")
+    public Object[][] dataRongTKVaMK() {
+ 
+        Object data[][] = ExcelDataProvider.testData(path,sheet,"trống đăng nhập");
+        return data;
+    }
+    
+    @Test(dataProvider = "saiMatKhau")
+    public void testMatkhauSai(String userName,String password){       
         actualResult = login.login(userName,password).get("ErrorPass").toLowerCase();
         expected = "mật khẩu không chính xác";
-        assertEquals(expected.toLowerCase(),actualResult);
+        assertEquals(actualResult,expected.toLowerCase());
     }
     
-    @Test
-    public void testTKChuaDangKy(){
-        Assume.assumeTrue(type == Type.TKCHUADANGKY);
+    @Test(dataProvider = "taikhoanchuadangky")
+    public void testTKChuaDangKy(String userName,String password){
         actualResult = login.login(userName, password).get("ErrorUser").toLowerCase();
         expected = "Tài khoản không tồn tại";
-        assertEquals(expected.toLowerCase(),actualResult);
+        assertEquals(actualResult,expected.toLowerCase());
     }
     
-    @Test
-    public void testDangNhapDung(){
-        Assume.assumeTrue(type == Type.DANGNHAPDUNG);
-        actualResult = login.login(userName, password).get("loginSuccess").toLowerCase();
+    @Test(dataProvider = "dangNhapDung")
+    public void testDangNhapDung(String userName,String password){
+        actualResult = login.login(userName,password.replaceAll("['']","")).get("loginSuccess").toLowerCase();
         expected = "Trang chủ";
-        assertEquals(expected.toLowerCase(),actualResult);
+        assertEquals(actualResult,expected.toLowerCase());
     }
     
-    @Test
-    public void testTrongTK(){
-        Assume.assumeTrue(type == Type.EMPTYTAIKHOAN);
-        actualResult = login.login(userName, password).get("ErrorUser").toLowerCase();
+    @Test(dataProvider = "tkRong")
+    public void testRongTK(String userName,String password){
+     
+        actualResult = login.login("", password.trim()).get("ErrorUser").toLowerCase();
         expected = "Không để trống tên đăng nhập";
-        assertEquals(expected.toLowerCase(),actualResult);
+        assertEquals(actualResult,expected.toLowerCase());
     }
     
-    @Test
-    public void testTrongMK(){
-        Assume.assumeTrue(type == Type.EMPTYMATKHAU);
-        actualResult = login.login(userName, password).get("ErrorPass").toLowerCase();
+    @Test(dataProvider = "mkRong")
+    public void testRongMK(String userName,String password){
+       
+        actualResult = login.login(userName.trim(), "").get("ErrorPass").toLowerCase();
         expected = "Không để trống mật khẩu";
-        assertEquals(expected.toLowerCase(),actualResult);
+        assertEquals(actualResult,expected.toLowerCase());
     }
     
-    @Before
-    public void setUp() {
+    @Test(dataProvider = "tkRongVaMKRong")
+    public void testRongTaiKhoanVaMatKhau(String userName,String password){
+     
+        actualResult = login.login(userName, password).get("ErrorUser").toLowerCase() +
+              " và "  + login.login(userName, password).get("ErrorPass").toLowerCase();
+        expected = "Không để trống tên đăng nhập và Không để trống mật khẩu";
+        assertEquals(actualResult,expected.toLowerCase());
+    }
+    
+    
+    @BeforeMethod
+    public void setUpMethod() throws Exception {
         actualResult = "";
         expected = "";
         login = new Login();
     }
 
-    @After
-    public void tearDown() {
+    @AfterMethod
+    public void tearDownMethod() throws Exception {
     }
-
 }

@@ -39,6 +39,16 @@ public class ThuePhongUI extends javax.swing.JFrame {
     long millis = System.currentTimeMillis();
     Date date = new Date(millis);
 
+    String diaChi;
+    String hoTen;
+    String CMND;
+    String ngayThueC;
+    String soDT;
+    java.util.Date ngaySinh;
+    Object soPhong;
+    String manv;
+    Boolean gioiTinh;
+
     public ThuePhongUI() {
         initComponents();
         this.setVisible(true);
@@ -49,7 +59,8 @@ public class ThuePhongUI extends javax.swing.JFrame {
         lblNgayNhan1.setVisible(false);
         lblCoc1.setVisible(false);
         fillComboBoxLoaiPhong();
-
+        valueAdd(txtDia.getText(), txtHoTen.getText(), txt_CMND.getText(), txt_NgayThue.getText(),
+                txt_SoDT.getText(), DC_NgaySinh.getDate(), cbo_SoPhong.getSelectedItem(), "", null);
     }
 
     public void fillComboBoxPhong() {
@@ -76,42 +87,68 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public KhachHang getValueKhachHang() {
         KhachHang k = new KhachHang();
-        k.setTenKH(txtHoTen.getText());
-        k.setDiaChi(txtDia.getText());
-        if (rdo_Nam.isSelected()) {
-            k.setGioiTinh(true);
+        k.setTenKH(hoTen);
+        k.setDiaChi(diaChi);
+
+        if (gioiTinh == null) {
+            if (rdo_Nam.isSelected()) {
+                k.setGioiTinh(true);
+            } else {
+                k.setGioiTinh(false);
+            }
         } else {
-            k.setGioiTinh(false);
+            k.setGioiTinh(gioiTinh);
         }
-        k.setNgaySinh(DC_NgaySinh.getDate());
-        k.setSoDT(txt_SoDT.getText());
-        k.setCmnd(txt_CMND.getText());
+
+        k.setNgaySinh(ngaySinh);
+        k.setSoDT(soDT);
+        k.setCmnd(CMND);
         return k;
     }
 
+    public void valueAdd(String diaChi,
+            String hoTen,
+            String CMND,
+            String ngayThueC,
+            String soDT,
+            java.util.Date ngaySinh,
+            Object soPhong,
+            String manv,
+            Boolean gioiTinh) {
+        this.diaChi = diaChi;
+        this.hoTen = hoTen;
+        this.CMND = CMND;
+        this.ngayThueC = ngayThueC;
+        this.soDT = soDT;
+        this.ngaySinh = ngaySinh;
+        this.soPhong = soPhong;
+        this.manv = manv;
+        this.gioiTinh = gioiTinh;
+    }
+
     public boolean checkForm() {
-        if (txtDia.getText().trim().isEmpty()) {
+        if (diaChi.trim().isEmpty()) {
             MsgBox.alert(null, "Vui lòng nhập địa chỉ");
             return false;
-        } else if (txtHoTen.getText().trim().isEmpty()) {
+        } else if (hoTen.trim().isEmpty()) {
             MsgBox.alert(null, "Vui lòng nhập họ tên");
             return false;
-        } else if (txtHoTen.getText().trim().matches("[\\sa-zA-ZaAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ\n"
+        } else if (hoTen.trim().matches("[\\sa-zA-ZaAàÀảẢãÃáÁạẠăĂằẰẳẲẵẴắẮặẶâÂầẦẩẨẫẪấẤậẬbBcCdDđĐeEèÈẻẺẽẼéÉẹẸêÊềỀểỂễỄếẾệỆ\n"
                 + "fFgGhHiIìÌỉỈĩĨíÍịỊjJkKlLmMnNoOòÒỏỎõÕóÓọỌôÔồỒổỔỗỖốỐộỘơƠờỜởỞỡỠớỚợỢpPqQrRsStTu\n"
                 + "UùÙủỦũŨúÚụỤưƯừỪửỬữỮứỨựỰvVwWxXyYỳỲỷỶỹỸýÝỵỴzZ]+") == false) {
 
             MsgBox.alert(null, "Vui lòng nhập họ tên hợp lệ");
             return false;
-        } else if (txt_CMND.getText().trim().matches("[0-9]{9,12}") == false) {
+        } else if (CMND.trim().matches("[0-9]{9,12}") == false) {
             MsgBox.alert(null, "Chứng minh nhân dân phải từ 9-12 số");
             return false;
-        } else if (txt_NgayThue.getText().trim().isEmpty()) {
+        } else if (ngayThueC.trim().isEmpty()) {
             MsgBox.alert(null, "Vui lòng nhập số ngày thuê");
             return false;
-        } else if (txt_SoDT.getText().trim().isEmpty()) {
+        } else if (soDT.trim().isEmpty()) {
             MsgBox.alert(null, "Vui lòng nhập số điện thoại");
             return false;
-        } else if (txt_SoDT.getText().matches("[01-9]{9}")) {
+        } else if (soDT.matches("[01-9]{9}")) {
             MsgBox.alert(null, "Số điện thoại phải đúng 10 số");
             return false;
         } else if (DC_NgaySinh.getDate() == null) {
@@ -174,13 +211,20 @@ public class ThuePhongUI extends javax.swing.JFrame {
             }
 
         } else {
-            Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+            String soP = "";
+            if (soPhong instanceof String) {
+                soP = String.valueOf(soPhong);
+            } else {
+                Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+                soP = p.getSoPhong();
+            }
+
             List<DatTruoc> listDatTruoc = dtDao.selectAll();
             for (int i = 0; i < listDatTruoc.size(); i++) {
                 DatTruoc dt = listDatTruoc.get(i);
-                if (dt.getSoPhong().equals(p.getSoPhong()) && XDate.toString(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())), "yyyy-MM-dd")
+                if (dt.getSoPhong().equals(soP) && XDate.toString(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())), "yyyy-MM-dd")
                         .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) == 0
-                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng") || dt.getSoPhong().equals(p.getSoPhong())
+                        && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng") || dt.getSoPhong().equals(soP)
                         && XDate.toString(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())), "yyyy-MM-dd")
                                 .compareTo(XDate.toString(dt.getNgayNhanPhong(), "yyyy-MM-dd")) >= 1
                         && dt.getTinhTrang().equalsIgnoreCase("Chờ nhận phòng")) {
@@ -194,7 +238,13 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public ThuePhong getValueThuePhong() {
         ThuePhong t = new ThuePhong();
-        Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+        String soP = "";
+        if (soPhong instanceof String) {
+            soP = String.valueOf(soPhong);
+        } else {
+            Phong p = (Phong) cbo_SoPhong.getSelectedItem();
+            soP = p.getSoPhong();
+        }
         List<ThuePhong> list = tpDao.selectAll();
         int maThue;
         if (list.size() == 0) {
@@ -203,9 +253,9 @@ public class ThuePhongUI extends javax.swing.JFrame {
             maThue = list.get(list.size() - 1).getMaThue() + 1;
         }
         t.setMaThue(maThue);
-        t.setNgayTra(XDate.addDays(date, Integer.parseInt(txt_NgayThue.getText())));
-        t.setSoPhong(p.getSoPhong());
-        t.setCmnd(txt_CMND.getText());
+        t.setNgayTra(XDate.addDays(date, Integer.parseInt(ngayThueC)));
+        t.setSoPhong(soP);
+        t.setCmnd(CMND);
         t.setNgayThue(date);
         return t;
     }
@@ -225,12 +275,11 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public HoaDon getValueHoaDon() {
         HoaDon hd = new HoaDon();
-        String cmnd = txt_CMND.getText();
         List<ThuePhong> list = tpDao.selectAll();
         int maThue = list.get(list.size() - 1).getMaThue();
-        hd.setCmnd(cmnd);
+        hd.setCmnd(CMND);
         hd.setMaKM(null);
-        hd.setMaNV(Auth.user.getMaNV());
+        hd.setMaNV((Auth.user.getMaNV() == null ? manv : Auth.user.getMaNV()));
         hd.setMaThue(maThue);
         hd.setNgayLap(date);
         hd.setNgayXuat(null);
@@ -243,13 +292,20 @@ public class ThuePhongUI extends javax.swing.JFrame {
 
     public Phong getValuePhong() {
         Phong p = new Phong();
-        Phong p1 = (Phong) cbo_SoPhong.getSelectedItem();
+        String soP = "";
+        if (soPhong instanceof String) {
+            soP = String.valueOf(soPhong);
+        } else {
+            Phong p1 = (Phong) cbo_SoPhong.getSelectedItem();
+            soP = p1.getSoPhong();
+        }
         p.setTinhTrang("Đã có người");
-        p.setSoPhong(p1.getSoPhong());
+        p.setSoPhong(soP);
         return p;
     }
 
-    public void add() {
+    public int add() {
+
         boolean check = true;
 
         List<KhachHang> list = khDao.selectAll();
@@ -270,6 +326,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
             hdDao.insert(getValueHoaDon());
             spDao.updateTrangThaiPhong(getValuePhong());
         }
+        return tpDao.selectAll().size();
 
     }
 
@@ -658,10 +715,6 @@ public class ThuePhongUI extends javax.swing.JFrame {
         clearForm();
     }//GEN-LAST:event_btn_NewActionPerformed
 
-    private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
-
-    }//GEN-LAST:event_btn_ThemPhongActionPerformed
-
     private void chk_DatTruoc1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_chk_DatTruoc1MousePressed
         if (chk_DatTruoc1.isSelected()) {
             txt_DatCoc.setVisible(false);
@@ -683,6 +736,21 @@ public class ThuePhongUI extends javax.swing.JFrame {
     private void txt_CMNDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_CMNDActionPerformed
 
     }//GEN-LAST:event_txt_CMNDActionPerformed
+
+    private void btn_ThemPhongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_ThemPhongActionPerformed
+        valueAdd(txtDia.getText(), txtHoTen.getText(), txt_CMND.getText(), txt_NgayThue.getText(),
+                txt_SoDT.getText(), DC_NgaySinh.getDate(), cbo_SoPhong.getSelectedItem(), "", null);
+    }//GEN-LAST:event_btn_ThemPhongActionPerformed
+
+    boolean checkLG;
+
+    public boolean ischeckLG() {
+        return checkLG;
+    }
+
+    public void setcheckLG(boolean checkLG) {
+        this.checkLG = checkLG;
+    }
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -725,7 +793,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     public javax.swing.JComboBox<String> cbo_LoaiPhong;
     public javax.swing.JComboBox<String> cbo_SoPhong;
-    private javax.swing.JCheckBox chk_DatTruoc1;
+    public javax.swing.JCheckBox chk_DatTruoc1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
