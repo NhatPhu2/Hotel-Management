@@ -5,6 +5,7 @@
 package Test;
 
 import com.UI.Login;
+import java.io.File;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -22,8 +23,10 @@ public class LoginTest {
     private Login login;
     private String actualResult;
     private String expected;
-    String path = "E:\\testdata.xlsx";
+    File path = new File("E:\\testdata.xlsx");
     String sheet = "Đăng nhập";
+    ExcelUtils ex = new ExcelUtils(path, sheet);
+    int index = 0;
     @BeforeClass
     public static void setUpClass() throws Exception {
     }
@@ -78,21 +81,31 @@ public class LoginTest {
     public void testMatkhauSai(String userName,String password){       
         actualResult = login.login(userName,password).get("ErrorPass").toLowerCase();
         expected = "mật khẩu không chính xác";
-        assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
+        assertEquals(actualResult,expected.toLowerCase());//nếu fail dừng tại đây.
+        
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;//index là vị trí row trong excel
     }
     
     @Test(dataProvider = "taikhoanchuadangky")
     public void testTKChuaDangKy(String userName,String password){
         actualResult = login.login(userName, password).get("ErrorUser").toLowerCase();
         expected = "Tài khoản không tồn tại";
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
         assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;
     }
     
     @Test(dataProvider = "dangNhapDung")
     public void testDangNhapDung(String userName,String password){
         actualResult = login.login(userName,password.replaceAll("['']","")).get("loginSuccess").toLowerCase();
         expected = "Trang chủ";
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
         assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;
     }
     
     @Test(dataProvider = "tkRong")
@@ -100,7 +113,10 @@ public class LoginTest {
      
         actualResult = login.login("", password.trim()).get("ErrorUser").toLowerCase();
         expected = "Không để trống tên đăng nhập";
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
         assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;
     }
     
     @Test(dataProvider = "mkRong")
@@ -108,7 +124,10 @@ public class LoginTest {
        
         actualResult = login.login(userName.trim(), "").get("ErrorPass").toLowerCase();
         expected = "Không để trống mật khẩu";
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
         assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;
     }
     
     @Test(dataProvider = "tkRongVaMKRong")
@@ -117,7 +136,10 @@ public class LoginTest {
         actualResult = login.login(userName, password).get("ErrorUser").toLowerCase() +
               " và "  + login.login(userName, password).get("ErrorPass").toLowerCase();
         expected = "Không để trống tên đăng nhập và Không để trống mật khẩu";
+        ex.updateExcel(path, "Fail", ExcelDataProvider.rows.get(index));
         assertEquals(actualResult,expected.toLowerCase());
+        ex.updateExcel(path, "Pass", ExcelDataProvider.rows.get(index));
+        index++;
     }
     
     
@@ -130,5 +152,7 @@ public class LoginTest {
 
     @AfterMethod
     public void tearDownMethod() throws Exception {
+        if(ExcelDataProvider.rows.size() - 1 < index)
+        index = 0;
     }
 }

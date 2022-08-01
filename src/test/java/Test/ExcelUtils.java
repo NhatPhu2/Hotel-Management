@@ -4,6 +4,9 @@
  */
 package Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Date;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -25,9 +28,10 @@ public class ExcelUtils {
     XSSFRow rowBlank = null;
     XSSFCell cellBlank = null;
 
-    public ExcelUtils(String path, String sheetName) {
+    public ExcelUtils(File pathFile, String sheetName) {
         try {
-            workBook = new XSSFWorkbook(path);
+            FileInputStream file = new FileInputStream(pathFile);
+            workBook = new XSSFWorkbook(file);
             sheet = workBook.getSheet(sheetName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,6 +51,23 @@ public class ExcelUtils {
             e.printStackTrace();
         }
         return rowCount;
+    }
+
+    public void updateExcel(File path, String result, int row)  {
+        try {
+
+            Cell cell = null;
+            //Update the value of cell
+            int lastCol = sheet.getRow(row).getLastCellNum() - 1;
+            cell = sheet.getRow(row).getCell(lastCol);
+            cell.setCellValue(result);
+            FileOutputStream outFile = new FileOutputStream(path);
+            workBook.write(outFile);
+            outFile.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public int getColCount() {
@@ -71,7 +92,7 @@ public class ExcelUtils {
 
         return cellData;
     }
-    
+
     public boolean getCellDataBoolean(int rowNum, int colNum) {
         boolean cellData = false;
         try {
@@ -94,7 +115,7 @@ public class ExcelUtils {
 
         return cellData;
     }
-    
+
     public Date getCellDataDate(int rowNum, int colNum) {
         Date cellData = null;
         try {

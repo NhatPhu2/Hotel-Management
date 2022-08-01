@@ -151,12 +151,12 @@ public class ThuePhongUI extends javax.swing.JFrame {
         } else if (soDT.matches("[01-9]{9}")) {
             MsgBox.alert(null, "Số điện thoại phải đúng 10 số");
             return false;
-        } else if (DC_NgaySinh.getDate() == null) {
+        } else if (ngaySinh == null) {
             MsgBox.alert(null, "Vui lòng điền năm sinh");
             return false;
         }
         try {
-            int ngayThue = Integer.parseInt(txt_NgayThue.getText());
+            int ngayThue = Integer.parseInt(ngayThueC);
             if (ngayThue < 0) {
                 throw new Exception();
             }
@@ -279,7 +279,7 @@ public class ThuePhongUI extends javax.swing.JFrame {
         int maThue = list.get(list.size() - 1).getMaThue();
         hd.setCmnd(CMND);
         hd.setMaKM(null);
-        hd.setMaNV((Auth.user.getMaNV() == null ? manv : Auth.user.getMaNV()));
+        hd.setMaNV((Auth.user == null ? manv : Auth.user.getMaNV()));
         hd.setMaThue(maThue);
         hd.setNgayLap(date);
         hd.setNgayXuat(null);
@@ -304,29 +304,31 @@ public class ThuePhongUI extends javax.swing.JFrame {
         return p;
     }
 
-    public int add() {
+    public boolean add() {
+        if (checkForm()) {
+            boolean check = true;
 
-        boolean check = true;
+            List<KhachHang> list = khDao.selectAll();
+            for (int i = 0; i < list.size(); i++) { //kiểm tra khách hàng đã từng đến KS
+                KhachHang k = list.get(i);
+                if (CMND.trim().equals(k.getCmnd().trim())) {
+                    check = false;
+                }
+            }
 
-        List<KhachHang> list = khDao.selectAll();
-        for (int i = 0; i < list.size(); i++) { //kiểm tra khách hàng đã từng đến KS
-            KhachHang k = list.get(i);
-            if (txt_CMND.getText().trim().equals(k.getCmnd().trim())) {
-                check = false;
+            if (check == true) {
+                khDao.insert(getValueKhachHang());
+            }
+            if (chk_DatTruoc1.isSelected()) {
+                dtDao.insert(getValueDatTruoc());
+            } else {
+                tpDao.insert(getValueThuePhong());
+                hdDao.insert(getValueHoaDon());
+                spDao.updateTrangThaiPhong(getValuePhong());
             }
         }
 
-        if (check == true) {
-            khDao.insert(getValueKhachHang());
-        }
-        if (chk_DatTruoc1.isSelected()) {
-            dtDao.insert(getValueDatTruoc());
-        } else {
-            tpDao.insert(getValueThuePhong());
-            hdDao.insert(getValueHoaDon());
-            spDao.updateTrangThaiPhong(getValuePhong());
-        }
-        return tpDao.selectAll().size();
+        return checkForm();
 
     }
 
